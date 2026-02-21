@@ -480,6 +480,26 @@
             font-weight: bold;
         }
 
+        /* 判定用選択スタイル */
+        .clickable-stat,
+        .clickable-skill {
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+
+        .clickable-stat:hover,
+        .clickable-skill:hover {
+            background-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .selected-item {
+            background-color: var(--primary) !important;
+            color: white !important;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
         .file-input-wrapper {
             margin-bottom: 20px;
             display: flex;
@@ -570,52 +590,52 @@
                 <div class="stats-label" style="text-align: center;">値</div>
                 <div class="stats-label" style="text-align: center;">B</div>
 
-                <span>器用</span>
+                <span class="clickable-stat" data-stat="dex">器用</span>
                 <input type="number" id="stt-dex" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-dex" class="stats-input" placeholder="0">
 
-                <span>敏捷</span>
+                <span class="clickable-stat" data-stat="agi">敏捷</span>
                 <input type="number" id="stt-agi" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-agi" class="stats-input" placeholder="0">
 
-                <span>筋力</span>
+                <span class="clickable-stat" data-stat="str">筋力</span>
                 <input type="number" id="stt-str" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-str" class="stats-input" placeholder="0">
 
-                <span>生命</span>
+                <span class="clickable-stat" data-stat="vit">生命</span>
                 <input type="number" id="stt-vit" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-vit" class="stats-input" placeholder="0">
 
-                <span>知力</span>
+                <span class="clickable-stat" data-stat="int">知力</span>
                 <input type="number" id="stt-int" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-int" class="stats-input" placeholder="0">
 
-                <span>精神</span>
+                <span class="clickable-stat" data-stat="mnd">精神</span>
                 <input type="number" id="stt-mnd" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-mnd" class="stats-input" placeholder="0">
             </div>
 
             <div class="skills-list">
-                <div class="stats-label">主要技能</div>
-                <div class="skill-item">
-                    <input type="text" id="skill-name-1" class="skill-name" placeholder="技能名1">
-                    <input type="number" id="skill-lv-1" class="skill-level" placeholder="0">
+                <div class="stats-label">主要技能（クリックで選択）</div>
+                <div class="skill-item clickable-skill" data-skill-id="1">
+                    <input type="text" id="skill-name-1" class="skill-name" placeholder="技能名1" readonly>
+                    <input type="number" id="skill-lv-1" class="skill-level" placeholder="0" readonly>
                 </div>
-                <div class="skill-item">
-                    <input type="text" id="skill-name-2" class="skill-name" placeholder="技能名2">
-                    <input type="number" id="skill-lv-2" class="skill-level" placeholder="0">
+                <div class="skill-item clickable-skill" data-skill-id="2">
+                    <input type="text" id="skill-name-2" class="skill-name" placeholder="技能名2" readonly>
+                    <input type="number" id="skill-lv-2" class="skill-level" placeholder="0" readonly>
                 </div>
-                <div class="skill-item">
-                    <input type="text" id="skill-name-3" class="skill-name" placeholder="技能名3">
-                    <input type="number" id="skill-lv-3" class="skill-level" placeholder="0">
+                <div class="skill-item clickable-skill" data-skill-id="3">
+                    <input type="text" id="skill-name-3" class="skill-name" placeholder="技能名3" readonly>
+                    <input type="number" id="skill-lv-3" class="skill-level" placeholder="0" readonly>
                 </div>
-                <div class="skill-item">
-                    <input type="text" id="skill-name-4" class="skill-name" placeholder="技能名4">
-                    <input type="number" id="skill-lv-4" class="skill-level" placeholder="0">
+                <div class="skill-item clickable-skill" data-skill-id="4">
+                    <input type="text" id="skill-name-4" class="skill-name" placeholder="技能名4" readonly>
+                    <input type="number" id="skill-lv-4" class="skill-level" placeholder="0" readonly>
                 </div>
-                <div class="skill-item">
-                    <input type="text" id="skill-name-5" class="skill-name" placeholder="技能名5">
-                    <input type="number" id="skill-lv-5" class="skill-level" placeholder="0">
+                <div class="skill-item clickable-skill" data-skill-id="5">
+                    <input type="text" id="skill-name-5" class="skill-name" placeholder="技能名5" readonly>
+                    <input type="number" id="skill-lv-5" class="skill-level" placeholder="0" readonly>
                 </div>
             </div>
         </div>
@@ -1110,6 +1130,118 @@
                 if (historyContainer.children.length > 10) {
                     historyContainer.removeChild(historyContainer.lastChild);
                 }
+            }
+
+            // 判定機能の変数
+            let selectedStat = null;
+            let selectedSkill = null;
+
+            // 能力値クリックイベント
+            document.querySelectorAll('.clickable-stat').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (selectedStat === el) {
+                        el.classList.remove('selected-item');
+                        selectedStat = null;
+                    } else {
+                        if (selectedStat) selectedStat.classList.remove('selected-item');
+                        el.classList.add('selected-item');
+                        selectedStat = el;
+                        checkAndRollCheck();
+                    }
+                });
+            });
+
+            // 技能クリックイベント
+            document.querySelectorAll('.clickable-skill').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (selectedSkill === el) {
+                        el.classList.remove('selected-item');
+                        selectedSkill = null;
+                    } else {
+                        if (selectedSkill) selectedSkill.classList.remove('selected-item');
+                        el.classList.add('selected-item');
+                        selectedSkill = el;
+                        checkAndRollCheck();
+                    }
+                });
+            });
+
+            function checkAndRollCheck() {
+                if (selectedStat && selectedSkill) {
+                    const statKey = selectedStat.getAttribute('data-stat');
+                    const bonusInput = document.getElementById(`bonus-${statKey}`);
+                    const bonus = parseInt(bonusInput.value, 10) || 0;
+
+                    const skillId = selectedSkill.getAttribute('data-skill-id');
+                    const skillNameInput = document.getElementById(`skill-name-${skillId}`);
+                    const skillLvInput = document.getElementById(`skill-lv-${skillId}`);
+                    const skillName = skillNameInput.value || '技能なし';
+                    const skillLv = parseInt(skillLvInput.value, 10) || 0;
+
+                    const statName = selectedStat.textContent;
+                    const baseMod = bonus + skillLv;
+
+                    // 2d6ロールを実行
+                    rollCheck(statName, skillName, baseMod);
+
+                    // 選択を解除
+                    selectedStat.classList.remove('selected-item');
+                    selectedSkill.classList.remove('selected-item');
+                    selectedStat = null;
+                    selectedSkill = null;
+                }
+            }
+
+            function rollCheck(statName, skillName, baseMod) {
+                rollBtn.disabled = true;
+                rollBtn.textContent = '判定中...';
+
+                // Calculate total buffs/debuffs
+                const buffInputs = document.querySelectorAll('.buff-value');
+                let totalBuff = 0;
+                buffInputs.forEach(input => {
+                    const val = parseInt(input.value, 10);
+                    if (!isNaN(val)) {
+                        totalBuff += val;
+                    }
+                });
+
+                diceContainer.innerHTML = '';
+                totalScoreDisplay.className = 'total-score';
+                totalScoreDisplay.textContent = '';
+
+                const d1 = Math.floor(Math.random() * 6) + 1;
+                const d2 = Math.floor(Math.random() * 6) + 1;
+                const diceTotal = d1 + d2;
+
+                // アニメーション用のダイス表示
+                [d1, d2].forEach(val => {
+                    const die = document.createElement('div');
+                    die.className = 'die show rolling';
+                    die.textContent = val;
+                    diceContainer.appendChild(die);
+                });
+
+                setTimeout(() => {
+                    document.querySelectorAll('.die').forEach(el => el.classList.remove('rolling'));
+
+                    let isAutoFail = (diceTotal === 2);
+                    let finalResult = isAutoFail ? 0 : diceTotal + baseMod + totalBuff;
+                    let resultText = isAutoFail ? '自動失敗' : finalResult;
+
+                    let detailStr = `${diceTotal}[${d1},${d2}] + ${baseMod}`;
+                    if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+
+                    totalScoreDisplay.textContent = `${statName}/${skillName}判定: ${resultText}`;
+                    totalScoreDisplay.style.color = isAutoFail ? '#ef4444' : 'var(--accent)';
+                    totalScoreDisplay.style.fontSize = '1.5rem';
+                    totalScoreDisplay.className = 'total-score show';
+
+                    addToHistory(2, `${statName}/${skillName} ${detailStr}`, resultText, isAutoFail);
+
+                    rollBtn.disabled = false;
+                    rollBtn.textContent = 'ダイスを振る';
+                }, 600);
             }
         });
     </script>
