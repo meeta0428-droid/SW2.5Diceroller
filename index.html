@@ -24,7 +24,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            /* justify-content: center; */
+            /* モバイルでコンテンツが画面外に押し出される原因となるため削除 */
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
@@ -51,6 +52,7 @@
             font-size: 2rem;
             font-weight: 700;
             background: linear-gradient(135deg, #a855f7, #6366f1);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 30px;
@@ -505,6 +507,31 @@
 
         #json-upload {
             display: none;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            .status-container {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .buff-container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .total-score {
+                font-size: 1.5rem !important;
+            }
         }
     </style>
 </head>
