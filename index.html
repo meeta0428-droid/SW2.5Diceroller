@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プレミアム ダイスローラー</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-color: #f8fafc;
+            --border-color: #334155;
+            --accent: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            background-color: var(--border-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            background-color: var(--border-color);
+        }
+
+        .dice-count-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-width: 80px;
+            background: var(--bg-color);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .roll-btn {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            width: 100%;
+            letter-spacing: 1px;
+        }
+
+        .roll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .roll-btn:active {
+            transform: translateY(1px);
+        }
+
+        .results-area {
+            margin-top: 40px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dice-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .die {
+            width: 60px;
+            height: 60px;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: scale(0.5) rotate(180deg);
+        }
+
+        .die.show {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .die.rolling {
+            animation: shake 0.4s infinite;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(15deg);
+            }
+
+            50% {
+                transform: rotate(0deg);
+            }
+
+            75% {
+                transform: rotate(-15deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .total-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            opacity: 0;
+            transform: translateY(20px);
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .total-score.show {
+            animation: slideUp 0.6s ease forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .history {
+            margin-top: 30px;
+            width: 100%;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Scrollbar styles for history */
+        .history::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history::-webkit-scrollbar-track {
+            background: var(--surface-color);
+        }
+
+        .history::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .history::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .rating-table-wrapper {
+            margin-top: 15px;
+            margin-bottom: 25px;
+            width: 100%;
+            overflow-x: auto;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .rating-table-wrapper.show {
+            display: block;
+        }
+
+        .rating-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            table-layout: fixed;
+        }
+
+        .rating-table th,
+        .rating-table td {
+            border: 1px solid var(--border-color);
+            padding: 6px 2px;
+            text-align: center;
+        }
+
+        .rating-table th {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .rating-table td {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .power-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .power-input-group.active {
+            opacity: 1;
+        }
+
+        .power-input {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1.1rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        .power-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .round-tracker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .round-label {
+            font-weight: bold;
+            color: var(--text-color);
+            margin-right: -5px;
+        }
+
+        .buff-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .buff-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .buff-name {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            padding: 5px;
+            outline: none;
+        }
+
+        .buff-name::placeholder {
+            color: #64748b;
+        }
+
+        .buff-value,
+        .buff-duration {
+            width: 45px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 0.9rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .buff-duration {
+            width: 50px;
+            color: #fbbf24;
+            /* highlight for duration */
+        }
+
+        .buff-value:focus,
+        .buff-duration:focus,
+        .buff-name:focus {
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>ダイスローラー</h1>
+
+        <div class="controls">
+            <button id="decrease-btn" class="control-btn" aria-label="ダイスを減らす">−</button>
+            <div id="dice-count" class="dice-count-display">2d6</div>
+            <button id="increase-btn" class="control-btn" aria-label="ダイスを増やす">＋</button>
+        </div>
+
+        <div class="round-tracker">
+            <span class="round-label">ラウンド</span>
+            <button id="round-decrease" class="control-btn" aria-label="ラウンドを減らす"
+                style="width:35px; height:35px; font-size:1rem;">−</button>
+            <div id="round-display" class="dice-count-display"
+                style="min-width:50px; padding:5px 10px; font-size:1.2rem;">1</div>
+            <button id="round-increase" class="control-btn" aria-label="ラウンドを増やす"
+                style="width:35px; height:35px; font-size:1rem;">＋</button>
+        </div>
+
+        <div class="buff-container">
+            <div class="buff-item">
+                <input type="text" class="buff-name" placeholder="バフ/デバフ名">
+                <input type="number" class="buff-value" placeholder="値">
+                <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
+            </div>
+            <div class="buff-item">
+                <input type="text" class="buff-name" placeholder="バフ/デバフ名">
+                <input type="number" class="buff-value" placeholder="値">
+                <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
+            </div>
+            <div class="buff-item">
+                <input type="text" class="buff-name" placeholder="バフ/デバフ名">
+                <input type="number" class="buff-value" placeholder="値">
+                <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
+            </div>
+            <div class="buff-item">
+                <input type="text" class="buff-name" placeholder="バフ/デバフ名">
+                <input type="number" class="buff-value" placeholder="値">
+                <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
+            </div>
+            <div class="buff-item">
+                <input type="text" class="buff-name" placeholder="バフ/デバフ名">
+                <input type="number" class="buff-value" placeholder="値">
+                <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
+            </div>
+            <div class="buff-item">
+                <input type="text" class="buff-name" placeholder="バフ/デバフ名">
+                <input type="number" class="buff-value" placeholder="値">
+                <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
+            </div>
+        </div>
+
+        <div id="power-group" class="power-input-group active">
+            <div>
+                <label for="power-input" style="display:block; font-size:0.8rem; margin-bottom:4px;">威力 (0-100)</label>
+                <input type="number" id="power-input" class="power-input" min="0" max="100" placeholder="-">
+            </div>
+            <div>
+                <label for="crit-input" style="display:block; font-size:0.8rem; margin-bottom:4px;">クリティカル値</label>
+                <input type="number" id="crit-input" class="power-input" min="3" max="12" value="10">
+            </div>
+        </div>
+
+        <div id="rating-table-container" class="rating-table-wrapper">
+            <!-- Table generated by JS -->
+        </div>
+
+        <button id="roll-btn" class="roll-btn">ダイスを振る</button>
+
+        <div class="results-area">
+            <div id="dice-container" class="dice-container">
+                <!-- Dice will appear here -->
+            </div>
+            <div id="total-score" class="total-score"></div>
+        </div>
+
+        <div class="history">
+            <h3 style="margin-top: 0; color: var(--text-color); font-size: 1rem;">履歴</h3>
+            <div id="history-container"></div>
+        </div>
+    </div>
+
+    <script src="damage_table.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const decreaseBtn = document.getElementById('decrease-btn');
+            const increaseBtn = document.getElementById('increase-btn');
+            const diceCountDisplay = document.getElementById('dice-count');
+            const rollBtn = document.getElementById('roll-btn');
+            const diceContainer = document.getElementById('dice-container');
+            const totalScoreDisplay = document.getElementById('total-score');
+            const historyContainer = document.getElementById('history-container');
+            const powerInput = document.getElementById('power-input');
+            const ratingTableContainer = document.getElementById('rating-table-container');
+
+            const roundDecreaseBtn = document.getElementById('round-decrease');
+            const roundIncreaseBtn = document.getElementById('round-increase');
+            const roundDisplay = document.getElementById('round-display');
+            let roundCount = 1;
+
+            roundDecreaseBtn.addEventListener('click', () => {
+                if (roundCount > 1) {
+                    roundCount--;
+                    roundDisplay.textContent = roundCount;
+                    roundDecreaseBtn.disabled = roundCount <= 1;
+                }
+            });
+
+            roundIncreaseBtn.addEventListener('click', () => {
+                roundCount++;
+                roundDisplay.textContent = roundCount;
+                roundDecreaseBtn.disabled = roundCount <= 1;
+
+                // バフ・デバフの持続ラウンドを減算処理
+                const buffItems = document.querySelectorAll('.buff-item');
+                buffItems.forEach(item => {
+                    const durationInput = item.querySelector('.buff-duration');
+                    const nameInput = item.querySelector('.buff-name');
+                    const valueInput = item.querySelector('.buff-value');
+
+                    if (durationInput && durationInput.value !== '') {
+                        let duration = parseInt(durationInput.value, 10);
+                        if (!isNaN(duration) && duration > 0) {
+                            duration--;
+                            if (duration <= 0) {
+                                // 効果切れ：入力欄をクリア
+                                durationInput.value = '';
+                                nameInput.value = '';
+                                valueInput.value = '';
+                            } else {
+                                // まだ持続中：数値を更新
+                                durationInput.value = duration;
+                            }
+                        }
+                    }
+                });
+            });
+            roundDecreaseBtn.disabled = true; // 初回は1ラウンドなのでマイナスボタンを無効化
+
+            let diceCount = 2; // Default to 2d6
+            const MAX_DICE = 10;
+            const MIN_DICE = 1;
+
+            // Initialize display
+            updateDiceCountDisplay();
+
+            decreaseBtn.addEventListener('click', () => {
+                if (diceCount > MIN_DICE) {
+                    diceCount--;
+                    updateDiceCountDisplay();
+                }
+            });
+
+            increaseBtn.addEventListener('click', () => {
+                if (diceCount < MAX_DICE) {
+                    diceCount++;
+                    updateDiceCountDisplay();
+                }
+            });
+
+            function updateDiceCountDisplay() {
+                diceCountDisplay.textContent = `${diceCount}d6`;
+                decreaseBtn.disabled = diceCount <= MIN_DICE;
+                increaseBtn.disabled = diceCount >= MAX_DICE;
+
+                const powerGroup = document.getElementById('power-group');
+                if (powerGroup) {
+                    if (diceCount === 2) {
+                        powerGroup.className = 'power-input-group active';
+                        updateRatingTable();
+                    } else {
+                        powerGroup.className = 'power-input-group';
+                        ratingTableContainer.className = 'rating-table-wrapper';
+                    }
+                }
+            }
+
+            powerInput.addEventListener('input', updateRatingTable);
+
+            function updateRatingTable() {
+                if (diceCount !== 2 || typeof damageTable === 'undefined') {
+                    ratingTableContainer.className = 'rating-table-wrapper';
+                    return;
+                }
+
+                const powerStr = powerInput.value;
+                if (powerStr === '') {
+                    ratingTableContainer.className = 'rating-table-wrapper';
+                    return;
+                }
+
+                const power = parseInt(powerStr, 10);
+                if (isNaN(power) || power < 0 || power > 100) {
+                    ratingTableContainer.className = 'rating-table-wrapper';
+                    return;
+                }
+
+                // Generate table HTML
+                const rowData = damageTable[power];
+                if (!rowData) return;
+
+                let html = '<table class="rating-table"><thead><tr>';
+                // Headers 3 to 12
+                for (let i = 3; i <= 12; i++) {
+                    html += `<th>${i}</th>`;
+                }
+                html += '</tr></thead><tbody><tr>';
+                // Values
+                for (let i = 0; i < 10; i++) {
+                    html += `<td>${rowData[i]}</td>`;
+                }
+                html += '</tr></tbody></table>';
+
+                ratingTableContainer.innerHTML = html;
+                ratingTableContainer.className = 'rating-table-wrapper show';
+            }
+
+            function rollDice() {
+                // Disable button during animation
+                rollBtn.disabled = true;
+                rollBtn.textContent = '判定中...';
+
+                // Calculate total buffs/debuffs
+                const buffInputs = document.querySelectorAll('.buff-value');
+                let totalBuff = 0;
+                buffInputs.forEach(input => {
+                    const val = parseInt(input.value, 10);
+                    if (!isNaN(val)) {
+                        totalBuff += val;
+                    }
+                });
+
+                // Clear previous results
+                diceContainer.innerHTML = '';
+                totalScoreDisplay.className = 'total-score';
+                totalScoreDisplay.textContent = '';
+
+                let total = 0;
+                const results = [];
+
+                // Create dice elements with rolling animation
+                const diceElements = [];
+                for (let i = 0; i < diceCount; i++) {
+                    const die = document.createElement('div');
+                    die.className = 'die show rolling';
+                    // Temporary random number during roll
+                    die.textContent = Math.floor(Math.random() * 6) + 1;
+                    diceContainer.appendChild(die);
+                    diceElements.push(die);
+                }
+
+                // 2d6の威力・クリティカル処理用関数
+                function calculateDamage(power, critValue, currentTotalDamage, rollCount, rollDetails, extraDice = []) {
+                    // ダイスを2個振る
+                    const d1 = Math.floor(Math.random() * 6) + 1;
+                    const d2 = Math.floor(Math.random() * 6) + 1;
+                    const total = d1 + d2;
+                    let newDamage = 0;
+
+                    rollDetails.push(`${d1},${d2}(=${total})`);
+                    extraDice.push(d1, d2);
+
+                    if (total === 2 && rollCount === 0) {
+                        return { damage: '自動失敗', isAutoFail: true, rolls: rollDetails, extraDice };
+                    }
+
+                    if (total > 2) {
+                        if (typeof damageTable !== 'undefined') {
+                            newDamage = damageTable[power][total - 3];
+                        }
+                    }
+
+                    const accumulatedDamage = currentTotalDamage + newDamage;
+
+                    // 出目がクリティカル値以上、かつ自動失敗ではない（total>=3）場合、振り足し
+                    if (total >= critValue && total > 2) {
+                        rollDetails[rollDetails.length - 1] += ' クリティカル!';
+                        return calculateDamage(power, critValue, accumulatedDamage, rollCount + 1, rollDetails, extraDice);
+                    } else {
+                        return { damage: accumulatedDamage, isAutoFail: false, rolls: rollDetails, extraDice };
+                    }
+                }
+
+                // Simulate rolling time
+                setTimeout(() => {
+                    for (let i = 0; i < diceCount; i++) {
+                        const result = Math.floor(Math.random() * 6) + 1;
+                        results.push(result);
+                        total += result;
+
+                        // Update dice with final result
+                        const die = diceElements[i];
+                        die.className = 'die show';
+                        die.textContent = result;
+                    }
+
+                    // Check if 2d6 and power is used
+                    let finalResultText = `合計: ${total}`;
+                    let isAutoFail = false;
+                    let displayTotalStr = total.toString();
+                    let historyRollsStr = results.join(', ');
+
+                    if (diceCount === 2) {
+                        const powerInput = document.getElementById('power-input');
+                        const critInput = document.getElementById('crit-input');
+                        if (powerInput.value !== '') {
+                            const power = parseInt(powerInput.value, 10);
+                            const critValue = parseInt(critInput.value, 10) || 10;
+
+                            if (!isNaN(power) && power >= 0 && power <= 100) {
+                                // 最初のロールはアニメーションで表示されたものをそのまま使う
+                                const firstD1 = results[0];
+                                const firstD2 = results[1];
+                                const firstTotal = firstD1 + firstD2;
+
+                                let currentDamage = 0;
+                                let rollDetails = [`${firstD1},${firstD2}(=${firstTotal})`];
+
+                                if (firstTotal === 2) {
+                                    finalResultText = `自動失敗 (出目2)`;
+                                    isAutoFail = true;
+                                    displayTotalStr = '自動失敗';
+                                    historyRollsStr = rollDetails[0];
+                                } else {
+                                    if (typeof damageTable !== 'undefined') {
+                                        currentDamage = damageTable[power][firstTotal - 3];
+                                    }
+
+                                    if (firstTotal >= critValue) {
+                                        rollDetails[0] += ' クリティカル!';
+                                        // 振り足し開始（すでに初回のダメージは取得済みなので、引数に渡す）
+                                        const critResult = calculateDamage(power, critValue, currentDamage, 1, rollDetails);
+                                        const finalDamage = critResult.damage + totalBuff;
+
+                                        // 画面にクリティカル分のダイスを追加表示する
+                                        if (critResult.extraDice && critResult.extraDice.length > 0) {
+                                            // クリティカルテキストを間に挟む
+                                            const plusSpan = document.createElement('div');
+                                            plusSpan.textContent = '＋';
+                                            plusSpan.style.fontSize = '1.5rem';
+                                            plusSpan.style.color = 'var(--accent)';
+                                            plusSpan.style.display = 'flex';
+                                            plusSpan.style.alignItems = 'center';
+                                            plusSpan.style.margin = '0 10px';
+                                            plusSpan.className = 'die show';
+                                            plusSpan.style.background = 'none';
+                                            plusSpan.style.boxShadow = 'none';
+                                            diceContainer.appendChild(plusSpan);
+
+                                            critResult.extraDice.forEach(resultVal => {
+                                                const die = document.createElement('div');
+                                                die.className = 'die show';
+                                                die.textContent = resultVal;
+                                                diceContainer.appendChild(die);
+                                            });
+                                        }
+
+                                        let buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
+                                        finalResultText = `算出ダメージ: ${finalDamage} (威力${power}, クリティカル値${critValue}${buffText ? ', バフ' + buffText : ''})`;
+                                        displayTotalStr = finalDamage.toString();
+                                        historyRollsStr = critResult.rolls.join(' ＞ ') + (buffText ? ` バフ${buffText}` : '');
+                                    } else {
+                                        let currentFinal = currentDamage + totalBuff;
+                                        let buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
+                                        finalResultText = `算出ダメージ: ${currentFinal} (出目${firstTotal}, 威力${power}${buffText ? ', バフ' + buffText : ''})`;
+                                        displayTotalStr = currentFinal.toString();
+                                        historyRollsStr = rollDetails[0] + (buffText ? ` バフ${buffText}` : '');
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (diceCount !== 2 || powerInput.value === '') {
+                        // Regular dice roll with buffs (or 2d6 without power input)
+                        total += totalBuff;
+                        let buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
+                        finalResultText = `合計: ${total}` + (buffText ? ` (バフ${buffText})` : '');
+                        historyRollsStr += (buffText ? ` バフ${buffText}` : '');
+                        displayTotalStr = total.toString();
+                    }
+
+                    // Show total
+                    totalScoreDisplay.textContent = finalResultText;
+                    totalScoreDisplay.className = 'total-score show';
+                    if (isAutoFail) {
+                        totalScoreDisplay.style.color = '#ef4444'; // Red for failure
+                        totalScoreDisplay.style.fontSize = '2rem';
+                    } else {
+                        totalScoreDisplay.style.color = 'var(--accent)';
+                        totalScoreDisplay.style.fontSize = '1.8rem'; // slightly smaller to fit text
+                    }
+
+                    // Add to history
+                    addToHistory(diceCount, historyRollsStr, displayTotalStr, isAutoFail);
+
+                    // Re-enable button
+                    rollBtn.disabled = false;
+                    rollBtn.textContent = 'ダイスを振る';
+                }, 600);
+            }
+
+            rollBtn.addEventListener('click', rollDice);
+
+            function addToHistory(count, rollsStr, totalStr, isAutoFail = false) {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+
+                const now = new Date();
+                const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+                const colorStyle = isAutoFail ? 'color: #ef4444;' : 'color: var(--text-color);';
+
+                historyItem.innerHTML = `
+                    <span>[${timeString}] ${count}d6 ＞ [${rollsStr}]</span>
+                    <strong style="${colorStyle}">→ ${totalStr}</strong>
+                `;
+
+                historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+
+                // Keep only last 10 items
+                if (historyContainer.children.length > 10) {
+                    historyContainer.removeChild(historyContainer.lastChild);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
