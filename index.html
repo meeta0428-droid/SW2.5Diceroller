@@ -733,7 +733,8 @@
 
             <div class="weapon-inputs-grid-2">
                 <div class="weapon-input-item">
-                    <label class="weapon-label">威力</label>
+                    <label class="weapon-label clickable-stat" id="power-label"
+                        style="color: var(--accent); font-weight: bold;">威力</label>
                     <input type="number" id="power-input" class="power-input" min="0" max="100" placeholder="-"
                         style="width: 100%;">
                 </div>
@@ -1249,6 +1250,20 @@
                 const hitBase = parseInt(document.getElementById('hit-input').value, 10) || 0;
                 const weaponName = document.getElementById('weapon-name').value || '武器';
                 rollHitCheck(weaponName, hitBase);
+            });
+
+            // 威力判定（ダメージ計算）クリックイベント
+            document.getElementById('power-label').addEventListener('click', () => {
+                const powerVal = document.getElementById('power-input').value;
+                if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
+                    alert('威力を入力してください。');
+                    return;
+                }
+                // ダイス数を2d6にセット
+                diceCount = 2;
+                updateDiceCountDisplay();
+                // ダメージロール実行
+                rollDice();
             });
 
             function rollHitCheck(weaponName, hitBase) {
