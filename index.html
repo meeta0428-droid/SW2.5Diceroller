@@ -762,6 +762,32 @@
                 const file = e.target.files[0];
                 if (!file) return;
 
+                // 読み込み前に各フィールドをリセット
+                const fieldsToReset = [
+                    'stt-dex', 'bonus-dex', 'stt-agi', 'bonus-agi', 'stt-str', 'bonus-str',
+                    'stt-vit', 'bonus-vit', 'stt-int', 'bonus-int', 'stt-mnd', 'bonus-mnd'
+                ];
+                fieldsToReset.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+
+                for (let i = 1; i <= 5; i++) {
+                    const nameEl = document.getElementById(`skill-name-${i}`);
+                    const lvEl = document.getElementById(`skill-lv-${i}`);
+                    if (nameEl) nameEl.value = '';
+                    if (lvEl) lvEl.value = '';
+                }
+
+                const weaponFields = ['weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input'];
+                weaponFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        if (id === 'crit-input') el.value = '10';
+                        else el.value = '';
+                    }
+                });
+
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     try {
