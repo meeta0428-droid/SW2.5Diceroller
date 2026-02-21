@@ -411,6 +411,101 @@
         .buff-name:focus {
             border-color: var(--primary);
         }
+
+        /* 能力値・技能セクションのスタイル */
+        .status-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .stats-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: bold;
+        }
+
+        .stats-input {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .skill-item {
+            display: grid;
+            grid-template-columns: 1fr 45px;
+            gap: 5px;
+        }
+
+        .skill-name {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+        }
+
+        .skill-level {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--accent);
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .file-input-wrapper {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .file-label {
+            background-color: var(--surface-color);
+            border: 1px dashed var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-label:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            border-style: solid;
+        }
+
+        #json-upload {
+            display: none;
+        }
     </style>
 </head>
 
@@ -418,6 +513,13 @@
 
     <div class="container">
         <h1>ダイスローラー</h1>
+
+        <div class="file-input-wrapper">
+            <label for="json-upload" class="file-label">
+                <span>📁 キャラクターJSONを読み込む</span>
+                <input type="file" id="json-upload" accept=".json">
+            </label>
+        </div>
 
         <div class="controls">
             <button id="decrease-btn" class="control-btn" aria-label="ダイスを減らす">−</button>
@@ -433,6 +535,62 @@
                 style="min-width:50px; padding:5px 10px; font-size:1.2rem;">1</div>
             <button id="round-increase" class="control-btn" aria-label="ラウンドを増やす"
                 style="width:35px; height:35px; font-size:1rem;">＋</button>
+        </div>
+
+        <div class="status-container">
+            <div class="stats-grid">
+                <div class="stats-label">能力値</div>
+                <div class="stats-label" style="text-align: center;">値</div>
+                <div class="stats-label" style="text-align: center;">B</div>
+
+                <span>器用</span>
+                <input type="number" id="stt-dex" class="stats-input" placeholder="0">
+                <input type="number" id="bonus-dex" class="stats-input" placeholder="0">
+
+                <span>敏捷</span>
+                <input type="number" id="stt-agi" class="stats-input" placeholder="0">
+                <input type="number" id="bonus-agi" class="stats-input" placeholder="0">
+
+                <span>筋力</span>
+                <input type="number" id="stt-str" class="stats-input" placeholder="0">
+                <input type="number" id="bonus-str" class="stats-input" placeholder="0">
+
+                <span>生命</span>
+                <input type="number" id="stt-vit" class="stats-input" placeholder="0">
+                <input type="number" id="bonus-vit" class="stats-input" placeholder="0">
+
+                <span>知力</span>
+                <input type="number" id="stt-int" class="stats-input" placeholder="0">
+                <input type="number" id="bonus-int" class="stats-input" placeholder="0">
+
+                <span>精神</span>
+                <input type="number" id="stt-mnd" class="stats-input" placeholder="0">
+                <input type="number" id="bonus-mnd" class="stats-input" placeholder="0">
+            </div>
+
+            <div class="skills-list">
+                <div class="stats-label">主要技能</div>
+                <div class="skill-item">
+                    <input type="text" id="skill-name-1" class="skill-name" placeholder="技能名1">
+                    <input type="number" id="skill-lv-1" class="skill-level" placeholder="0">
+                </div>
+                <div class="skill-item">
+                    <input type="text" id="skill-name-2" class="skill-name" placeholder="技能名2">
+                    <input type="number" id="skill-lv-2" class="skill-level" placeholder="0">
+                </div>
+                <div class="skill-item">
+                    <input type="text" id="skill-name-3" class="skill-name" placeholder="技能名3">
+                    <input type="number" id="skill-lv-3" class="skill-level" placeholder="0">
+                </div>
+                <div class="skill-item">
+                    <input type="text" id="skill-name-4" class="skill-name" placeholder="技能名4">
+                    <input type="number" id="skill-lv-4" class="skill-level" placeholder="0">
+                </div>
+                <div class="skill-item">
+                    <input type="text" id="skill-name-5" class="skill-name" placeholder="技能名5">
+                    <input type="number" id="skill-lv-5" class="skill-level" placeholder="0">
+                </div>
+            </div>
         </div>
 
         <div class="buff-container">
@@ -510,6 +668,91 @@
             const historyContainer = document.getElementById('history-container');
             const powerInput = document.getElementById('power-input');
             const ratingTableContainer = document.getElementById('rating-table-container');
+            const jsonUpload = document.getElementById('json-upload');
+
+            // JSON 読み込み機能
+            jsonUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+
+                        // 能力値とボーナスの入力
+                        if (data.sttDex) document.getElementById('stt-dex').value = data.sttDex;
+                        if (data.bonusDex) document.getElementById('bonus-dex').value = data.bonusDex;
+                        if (data.sttAgi) document.getElementById('stt-agi').value = data.sttAgi;
+                        if (data.bonusAgi) document.getElementById('bonus-agi').value = data.bonusAgi;
+                        if (data.sttStr) document.getElementById('stt-str').value = data.sttStr;
+                        if (data.bonusStr) document.getElementById('bonus-str').value = data.bonusStr;
+                        if (data.sttVit) document.getElementById('stt-vit').value = data.sttVit;
+                        if (data.bonusVit) document.getElementById('bonus-vit').value = data.bonusVit;
+                        if (data.sttInt) document.getElementById('stt-int').value = data.sttInt;
+                        if (data.bonusInt) document.getElementById('bonus-int').value = data.bonusInt;
+                        if (data.sttMnd) document.getElementById('stt-mnd').value = data.sttMnd;
+                        if (data.bonusMnd) document.getElementById('bonus-mnd').value = data.bonusMnd;
+
+                        // 技能の入力 (ゆとシート形式を想定)
+                        // ゆとシートのJSON構造に合わせて技能を抽出
+                        // 例: lvAlc, lvBib, lvMag, lvSco 等のプロパティがある
+                        const skillMap = {
+                            'Caster': 'ソーサラー',
+                            'Sor': 'ソーサラー',
+                            'Con': 'コンジャラー',
+                            'Pri': 'プリースト',
+                            'Mag': 'マギテック',
+                            'Fai': 'フェアリーテイマー',
+                            'Dru': 'ドルイド',
+                            'Dem': 'デーモンルーラー',
+                            'Alc': 'アルケミスト',
+                            'Bar': 'バード',
+                            'War': 'ウォーリーダー',
+                            'Mys': 'ミスティック',
+                            'Bib': 'ビブリオマンサー',
+                            'Sag': 'セージ',
+                            'Sco': 'スカウト',
+                            'Ran': 'レンジャー',
+                            'Rid': 'ライダー',
+                            'Fen': 'フェンサー',
+                            'Gra': 'グラップラー',
+                            'Neu': 'シューター'
+                        };
+
+                        let foundSkills = [];
+                        for (let key in data) {
+                            if (key.startsWith('lv') && data[key] > 0) {
+                                const skillKey = key.substring(2);
+                                const skillName = skillMap[skillKey] || skillKey;
+                                foundSkills.push({ name: skillName, level: data[key] });
+                            }
+                        }
+
+                        // レベル順にソート（降順）
+                        foundSkills.sort((a, b) => b.level - a.level);
+
+                        // 上位5つを入力欄にセット
+                        for (let i = 0; i < 5; i++) {
+                            const nameInput = document.getElementById(`skill-name-${i + 1}`);
+                            const lvInput = document.getElementById(`skill-lv-${i + 1}`);
+                            if (foundSkills[i]) {
+                                nameInput.value = foundSkills[i].name;
+                                lvInput.value = foundSkills[i].level;
+                            } else {
+                                nameInput.value = '';
+                                lvInput.value = '';
+                            }
+                        }
+
+                        alert('キャラクターデータを読み込みました。');
+                    } catch (error) {
+                        console.error('JSON parse error:', error);
+                        alert('JSONファイルの読み込みに失敗しました。');
+                    }
+                };
+                reader.readAsText(file);
+            });
 
             const roundDecreaseBtn = document.getElementById('round-decrease');
             const roundIncreaseBtn = document.getElementById('round-increase');
