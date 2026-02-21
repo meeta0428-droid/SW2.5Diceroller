@@ -338,6 +338,26 @@
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
         }
 
+        .weapon-inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .weapon-input-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .weapon-label {
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            color: #94a3b8;
+        }
+
         .round-tracker {
             display: flex;
             align-items: center;
@@ -682,14 +702,34 @@
             </div>
         </div>
 
-        <div id="power-group" class="power-input-group active">
-            <div>
-                <label for="power-input" style="display:block; font-size:0.8rem; margin-bottom:4px;">威力 (0-100)</label>
-                <input type="number" id="power-input" class="power-input" min="0" max="100" placeholder="-">
+        <div id="power-group" class="power-input-group active" style="flex-direction: column; gap: 15px;">
+            <div class="weapon-inputs-grid">
+                <div class="weapon-input-item">
+                    <label class="weapon-label">武器名</label>
+                    <input type="text" id="weapon-name" class="power-input" style="width: 100%;" placeholder="武器">
+                </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">威力</label>
+                    <input type="number" id="power-input" class="power-input" min="0" max="100" placeholder="-"
+                        style="width: 100%;">
+                </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">クリ値</label>
+                    <input type="number" id="crit-input" class="power-input" min="3" max="12" value="10"
+                        style="width: 100%;">
+                </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">追ダメ</label>
+                    <input type="number" id="extra-dmg-input" class="power-input" placeholder="0" style="width: 100%;">
+                </div>
             </div>
-            <div>
-                <label for="crit-input" style="display:block; font-size:0.8rem; margin-bottom:4px;">クリティカル値</label>
-                <input type="number" id="crit-input" class="power-input" min="3" max="12" value="10">
+
+            <div style="display: flex; justify-content: center; gap: 20px; width: 100%;">
+                <div class="weapon-input-item">
+                    <label class="weapon-label clickable-stat" id="hit-label"
+                        style="color: var(--accent); font-weight: bold; font-size: 0.9rem;">命中力判定</label>
+                    <input type="number" id="hit-input" class="power-input" placeholder="0" style="width: 120px;">
+                </div>
             </div>
         </div>
 
@@ -1034,11 +1074,14 @@
                                         currentDamage = damageTable[power][firstTotal - 3];
                                     }
 
+                                    const extraDamage = parseInt(document.getElementById('extra-dmg-input').value, 10) || 0;
+                                    const combinedBuff = totalBuff + extraDamage;
+
                                     if (firstTotal >= critValue) {
                                         rollDetails[0] += ' クリティカル!';
-                                        // 振り足し開始（すでに初回のダメージは取得済みなので、引数に渡す）
+                                        // 振り足し開始
                                         const critResult = calculateDamage(power, critValue, currentDamage, 1, rollDetails);
-                                        const finalDamage = critResult.damage + totalBuff;
+                                        const finalDamage = critResult.damage + combinedBuff;
 
                                         // 画面にクリティカル分のダイスを追加表示する
                                         if (critResult.extraDice && critResult.extraDice.length > 0) {
@@ -1063,16 +1106,18 @@
                                             });
                                         }
 
-                                        let buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
-                                        finalResultText = `算出ダメージ: ${finalDamage} (威力${power}, クリティカル値${critValue}${buffText ? ', バフ' + buffText : ''})`;
+                                        let modifierText = combinedBuff > 0 ? `+${combinedBuff}` : (combinedBuff < 0 ? `${combinedBuff}` : '');
+                                        const weaponName = document.getElementById('weapon-name').value || '武器';
+                                        finalResultText = `${weaponName}ダメージ: ${finalDamage} (威力${power}, クリ${critValue}${modifierText ? ', 修正' + modifierText : ''})`;
                                         displayTotalStr = finalDamage.toString();
-                                        historyRollsStr = critResult.rolls.join(' ＞ ') + (buffText ? ` バフ${buffText}` : '');
+                                        historyRollsStr = critResult.rolls.join(' ＞ ') + (modifierText ? ` 修正${modifierText}` : '');
                                     } else {
-                                        let currentFinal = currentDamage + totalBuff;
-                                        let buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
-                                        finalResultText = `算出ダメージ: ${currentFinal} (出目${firstTotal}, 威力${power}${buffText ? ', バフ' + buffText : ''})`;
+                                        let currentFinal = currentDamage + combinedBuff;
+                                        let modifierText = combinedBuff > 0 ? `+${combinedBuff}` : (combinedBuff < 0 ? `${combinedBuff}` : '');
+                                        const weaponName = document.getElementById('weapon-name').value || '武器';
+                                        finalResultText = `${weaponName}ダメージ: ${currentFinal} (出目${firstTotal}, 威力${power}${modifierText ? ', 修正' + modifierText : ''})`;
                                         displayTotalStr = currentFinal.toString();
-                                        historyRollsStr = rollDetails[0] + (buffText ? ` バフ${buffText}` : '');
+                                        historyRollsStr = rollDetails[0] + (modifierText ? ` 修正${modifierText}` : '');
                                     }
                                 }
                             }
@@ -1130,6 +1175,65 @@
                 if (historyContainer.children.length > 10) {
                     historyContainer.removeChild(historyContainer.lastChild);
                 }
+            }
+
+            // 命中判定クリックイベント
+            document.getElementById('hit-label').addEventListener('click', () => {
+                const hitBase = parseInt(document.getElementById('hit-input').value, 10) || 0;
+                const weaponName = document.getElementById('weapon-name').value || '武器';
+                rollHitCheck(weaponName, hitBase);
+            });
+
+            function rollHitCheck(weaponName, hitBase) {
+                rollBtn.disabled = true;
+                rollBtn.textContent = '判定中...';
+
+                // Calculate total buffs/debuffs
+                const buffInputs = document.querySelectorAll('.buff-value');
+                let totalBuff = 0;
+                buffInputs.forEach(input => {
+                    const val = parseInt(input.value, 10);
+                    if (!isNaN(val)) {
+                        totalBuff += val;
+                    }
+                });
+
+                diceContainer.innerHTML = '';
+                totalScoreDisplay.className = 'total-score';
+                totalScoreDisplay.textContent = '';
+
+                const d1 = Math.floor(Math.random() * 6) + 1;
+                const d2 = Math.floor(Math.random() * 6) + 1;
+                const diceTotal = d1 + d2;
+
+                [d1, d2].forEach(val => {
+                    const die = document.createElement('div');
+                    die.className = 'die show rolling';
+                    die.textContent = val;
+                    diceContainer.appendChild(die);
+                });
+
+                setTimeout(() => {
+                    document.querySelectorAll('.die').forEach(el => el.classList.remove('rolling'));
+
+                    let isAutoFail = (diceTotal === 2);
+                    let isAutoSuccess = (diceTotal === 12);
+                    let finalResult = isAutoFail ? 0 : diceTotal + hitBase + totalBuff;
+                    let resultText = isAutoFail ? '自動失敗' : (isAutoSuccess ? `自動成功 (${finalResult})` : finalResult);
+
+                    let detailStr = `${diceTotal}[${d1},${d2}] + ${hitBase}`;
+                    if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+
+                    totalScoreDisplay.textContent = `${weaponName}命中判定: ${resultText}`;
+                    totalScoreDisplay.style.color = isAutoFail ? '#ef4444' : (isAutoSuccess ? '#fbbf24' : 'var(--accent)');
+                    totalScoreDisplay.style.fontSize = '1.5rem';
+                    totalScoreDisplay.className = 'total-score show';
+
+                    addToHistory(2, `${weaponName}命中 ${detailStr}`, resultText, isAutoFail);
+
+                    rollBtn.disabled = false;
+                    rollBtn.textContent = 'ダイスを振る';
+                }, 600);
             }
 
             // 判定機能の変数
