@@ -340,7 +340,15 @@
 
         .weapon-inputs-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .weapon-inputs-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
             margin-bottom: 25px;
             width: 100%;
@@ -702,33 +710,41 @@
             </div>
         </div>
 
-        <div id="power-group" class="power-input-group active" style="flex-direction: column; gap: 15px;">
+        <div id="power-group" class="power-input-group active" style="flex-direction: column; gap: 0;">
             <div class="weapon-inputs-grid">
                 <div class="weapon-input-item">
-                    <label class="weapon-label">武器名</label>
-                    <input type="text" id="weapon-name" class="power-input" style="width: 100%;" placeholder="武器">
+                    <label class="weapon-label">武器</label>
+                    <input type="text" id="weapon-name" class="power-input" style="width: 100%;" placeholder="名前">
                 </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">用法</label>
+                    <input type="text" id="weapon-usage" class="power-input" style="width: 100%;" placeholder="-">
+                </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">必筋</label>
+                    <input type="number" id="weapon-reqd" class="power-input" style="width: 100%;" placeholder="0">
+                </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label clickable-stat" id="hit-label"
+                        style="color: var(--accent); font-weight: bold;">命中力</label>
+                    <input type="number" id="hit-input" class="power-input" placeholder="0" style="width: 100%;">
+                </div>
+            </div>
+
+            <div class="weapon-inputs-grid-2">
                 <div class="weapon-input-item">
                     <label class="weapon-label">威力</label>
                     <input type="number" id="power-input" class="power-input" min="0" max="100" placeholder="-"
                         style="width: 100%;">
                 </div>
                 <div class="weapon-input-item">
-                    <label class="weapon-label">クリ値</label>
+                    <label class="weapon-label">Ｃ値</label>
                     <input type="number" id="crit-input" class="power-input" min="3" max="12" value="10"
                         style="width: 100%;">
                 </div>
                 <div class="weapon-input-item">
-                    <label class="weapon-label">追ダメ</label>
+                    <label class="weapon-label">追加Ｄ</label>
                     <input type="number" id="extra-dmg-input" class="power-input" placeholder="0" style="width: 100%;">
-                </div>
-            </div>
-
-            <div style="display: flex; justify-content: center; gap: 20px; width: 100%;">
-                <div class="weapon-input-item">
-                    <label class="weapon-label clickable-stat" id="hit-label"
-                        style="color: var(--accent); font-weight: bold; font-size: 0.9rem;">命中力判定</label>
-                    <input type="number" id="hit-input" class="power-input" placeholder="0" style="width: 120px;">
                 </div>
             </div>
         </div>
@@ -779,7 +795,7 @@
                     if (lvEl) lvEl.value = '';
                 }
 
-                const weaponFields = ['weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input'];
+                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input'];
                 weaponFields.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
@@ -806,6 +822,15 @@
                         if (data.bonusInt) document.getElementById('bonus-int').value = data.bonusInt;
                         if (data.sttMnd) document.getElementById('stt-mnd').value = data.sttMnd;
                         if (data.bonusMnd) document.getElementById('bonus-mnd').value = data.bonusMnd;
+
+                        // 武器データの入力 (weapon1をデフォルトとする)
+                        if (data.weapon1Name) document.getElementById('weapon-name').value = data.weapon1Name;
+                        if (data.weapon1Usage) document.getElementById('weapon-usage').value = data.weapon1Usage;
+                        if (data.weapon1Reqd) document.getElementById('weapon-reqd').value = data.weapon1Reqd;
+                        if (data.weapon1AccTotal) document.getElementById('hit-input').value = data.weapon1AccTotal;
+                        if (data.weapon1Rate) document.getElementById('power-input').value = data.weapon1Rate;
+                        if (data.weapon1Crit) document.getElementById('crit-input').value = data.weapon1Crit;
+                        if (data.weapon1DmgTotal) document.getElementById('extra-dmg-input').value = data.weapon1DmgTotal;
 
                         // 技能の入力 (ゆとシート形式を想定)
                         // ゆとシートのJSON構造に合わせて技能を抽出
