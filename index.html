@@ -811,7 +811,10 @@
                         // ゆとシートのJSON構造に合わせて技能を抽出
                         // 例: lvAlc, lvBib, lvMag, lvSco 等のプロパティがある
                         const skillMap = {
-                            'Caster': 'ソーサラー',
+                            'Fig': 'ファイター',
+                            'Gra': 'グラップラー',
+                            'Fen': 'フェンサー',
+                            'Sho': 'シューター',
                             'Sor': 'ソーサラー',
                             'Con': 'コンジャラー',
                             'Pri': 'プリースト',
@@ -819,26 +822,39 @@
                             'Fai': 'フェアリーテイマー',
                             'Dru': 'ドルイド',
                             'Dem': 'デーモンルーラー',
+                            'Sco': 'スカウト',
+                            'Ran': 'レンジャー',
+                            'Sag': 'セージ',
+                            'Rid': 'ライダー',
                             'Alc': 'アルケミスト',
                             'Bar': 'バード',
                             'War': 'ウォーリーダー',
                             'Mys': 'ミスティック',
+                            'Art': 'アーティザン',
+                            'Ari': 'アリストクラシー',
+                            'Sch': 'スカラー',
                             'Bib': 'ビブリオマンサー',
-                            'Sag': 'セージ',
-                            'Sco': 'スカウト',
-                            'Ran': 'レンジャー',
-                            'Rid': 'ライダー',
-                            'Fen': 'フェンサー',
-                            'Gra': 'グラップラー',
+                            'Dar': 'ダークハンター',
+                            'Abys': 'アビスゲイザー',
+                            'Sha': 'シャドウウィッチ',
+                            'Dru': 'ドルイド',
+                            'Phy': 'フィジカルマスター',
+                            'Gri': 'グリモワール',
                             'Neu': 'シューター'
                         };
 
+                        // 除外すべきシステム項目
+                        const excludeList = ['lvCaster', 'lvCommon', 'lvMagic'];
+
                         let foundSkills = [];
                         for (let key in data) {
-                            if (key.startsWith('lv') && data[key] > 0) {
+                            if (key.startsWith('lv') && data[key] > 0 && !excludeList.includes(key)) {
                                 const skillKey = key.substring(2);
-                                const skillName = skillMap[skillKey] || skillKey;
-                                foundSkills.push({ name: skillName, level: data[key] });
+                                const skillName = skillMap[skillKey];
+                                // マッピングに存在する場合のみ追加
+                                if (skillName) {
+                                    foundSkills.push({ name: skillName, level: data[key] });
+                                }
                             }
                         }
 
