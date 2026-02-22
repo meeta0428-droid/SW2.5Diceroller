@@ -749,7 +749,7 @@
                 </div>
             </div>
 
-            <div class="weapon-inputs-grid-2" style="margin-bottom: 10px;">
+            <div class="weapon-inputs-grid-2" style="margin-bottom: 10px; grid-template-columns: 1fr 1fr 1fr 2fr;">
                 <div class="weapon-input-item">
                     <label class="weapon-label clickable-stat" id="magic-power-label"
                         style="color: #a855f7; font-weight: bold;">魔法威力</label>
@@ -761,7 +761,17 @@
                     <input type="number" id="magic-crit-input" class="power-input" min="3" max="12" value="10"
                         style="width: 100%;">
                 </div>
-                <div></div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">魔力</label>
+                    <input type="number" id="magic-bonus-input" class="power-input" placeholder="0"
+                        style="width: 100%;">
+                </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">魔力種別</label>
+                    <select id="magic-type-select" class="power-input" style="width: 100%; height: 38px; padding: 5px;">
+                        <option value="">(手動入力)</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -811,7 +821,7 @@
                     if (lvEl) lvEl.value = '';
                 }
 
-                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input', 'magic-power-input', 'magic-crit-input'];
+                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input', 'magic-power-input', 'magic-crit-input', 'magic-bonus-input'];
                 weaponFields.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
@@ -819,6 +829,8 @@
                         else el.value = '';
                     }
                 });
+                const magicSelect = document.getElementById('magic-type-select');
+                if (magicSelect) magicSelect.innerHTML = '<option value="">(手動入力)</option>';
 
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -847,6 +859,37 @@
                         if (data.weapon1Rate) document.getElementById('power-input').value = data.weapon1Rate;
                         if (data.weapon1Crit) document.getElementById('crit-input').value = data.weapon1Crit;
                         if (data.weapon1DmgTotal) document.getElementById('extra-dmg-input').value = data.weapon1DmgTotal;
+
+                        // 全ての魔力データを抽出してセレクトボックスを生成
+                        const magicSelect = document.getElementById('magic-type-select');
+                        const magicBonusInput = document.getElementById('magic-bonus-input');
+                        const allMagicData = {};
+
+                        for (let key in data) {
+                            if (key.startsWith('magicPower') && data[key] > 0) {
+                                const skillKey = key.substring(10);
+                                const skillName = skillMap[skillKey] || skillKey;
+                                allMagicData[skillName] = data[key];
+
+                                const option = document.createElement('option');
+                                option.value = data[key];
+                                option.textContent = `${skillName} (${data[key]})`;
+                                magicSelect.appendChild(option);
+                            }
+                        }
+
+                        // 魔力が存在する場合、最初のものをデフォルトでセット
+                        const magicEntries = Object.entries(allMagicData);
+                        if (magicEntries.length > 0) {
+                            magicSelect.value = magicEntries[0][1];
+                            magicBonusInput.value = magicEntries[0][1];
+                        }
+
+                        magicSelect.addEventListener('change', (e) => {
+                            if (e.target.value !== '') {
+                                magicBonusInput.value = e.target.value;
+                            }
+                        });
 
                         // 技能の入力 (ゆとシート形式を想定)
                         // ゆとシートのJSON構造に合わせて技能を抽出
@@ -1142,6 +1185,8 @@
                         if (type === 'magic' && mPowerInput.value !== '') {
                             power = parseInt(mPowerInput.value, 10);
                             critValue = parseInt(mCritInput.value, 10) || 10;
+                            const magicBonus = parseInt(document.getElementById('magic-bonus-input').value, 10) || 0;
+                            extraDamageVal = magicBonus;
                             label = '魔法';
                         } else if (wPowerInput.value !== '') {
                             power = parseInt(wPowerInput.value, 10);
