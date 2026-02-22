@@ -869,8 +869,12 @@
                         <div class="weapon-input-item">
                             <label class="weapon-label weapon-hit-label" id="weapon-1-hit-label" data-index="1"
                                 style="color: var(--accent); font-weight: bold;">命中力</label>
-                            <input type="number" id="weapon-1-hit" class="power-input" placeholder="0"
-                                style="width: 100%;">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-1-hit" class="power-input weapon-hit-input"
+                                    placeholder="0" style="width: 100%;" data-index="1">
+                                <button type="button" class="calc-btn weapon-hit-calc-btn" data-index="1"
+                                    title="命中判定">🎲</button>
+                            </div>
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
@@ -922,8 +926,12 @@
                         <div class="weapon-input-item">
                             <label class="weapon-label weapon-hit-label" id="weapon-2-hit-label" data-index="2"
                                 style="color: var(--accent); font-weight: bold;">命中力</label>
-                            <input type="number" id="weapon-2-hit" class="power-input" placeholder="0"
-                                style="width: 100%;">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-2-hit" class="power-input weapon-hit-input"
+                                    placeholder="0" style="width: 100%;" data-index="2">
+                                <button type="button" class="calc-btn weapon-hit-calc-btn" data-index="2"
+                                    title="命中判定">🎲</button>
+                            </div>
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
@@ -975,8 +983,12 @@
                         <div class="weapon-input-item">
                             <label class="weapon-label weapon-hit-label" id="weapon-3-hit-label" data-index="3"
                                 style="color: var(--accent); font-weight: bold;">命中力</label>
-                            <input type="number" id="weapon-3-hit" class="power-input" placeholder="0"
-                                style="width: 100%;">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-3-hit" class="power-input weapon-hit-input"
+                                    placeholder="0" style="width: 100%;" data-index="3">
+                                <button type="button" class="calc-btn weapon-hit-calc-btn" data-index="3"
+                                    title="命中判定">🎲</button>
+                            </div>
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
@@ -1028,8 +1040,12 @@
                         <div class="weapon-input-item">
                             <label class="weapon-label weapon-hit-label" id="weapon-4-hit-label" data-index="4"
                                 style="color: var(--accent); font-weight: bold;">命中力</label>
-                            <input type="number" id="weapon-4-hit" class="power-input" placeholder="0"
-                                style="width: 100%;">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-4-hit" class="power-input weapon-hit-input"
+                                    placeholder="0" style="width: 100%;" data-index="4">
+                                <button type="button" class="calc-btn weapon-hit-calc-btn" data-index="4"
+                                    title="命中判定">🎲</button>
+                            </div>
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
@@ -1746,8 +1762,10 @@
             }
 
             // 命中判定・威力判定クリックイベント（動的に割り当て）
-            document.querySelectorAll('.weapon-hit-label').forEach(el => {
-                el.addEventListener('click', () => {
+            document.querySelectorAll('.weapon-hit-label, .weapon-hit-calc-btn').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const idx = el.getAttribute('data-index');
                     const hitBase = parseInt(document.getElementById(`weapon-${idx}-hit`).value, 10) || 0;
                     const weaponName = document.getElementById(`weapon-${idx}-name`).value || `武器${idx}`;
