@@ -846,7 +846,8 @@
                             <div class="power-input-wrapper">
                                 <input type="number" id="weapon-1-power" class="power-input weapon-power-input" min="0"
                                     max="100" placeholder="-" style="width: 100%;" data-index="1">
-                                <button class="calc-btn weapon-calc-btn" data-index="1" title="ダメージ算出">🎲</button>
+                                <button type="button" class="calc-btn weapon-calc-btn" data-index="1"
+                                    title="ダメージ算出">🎲</button>
                             </div>
                         </div>
                         <div class="weapon-input-item">
@@ -893,12 +894,13 @@
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
                         <div class="weapon-input-item">
-                            <label class="weapon-label weapon-power-label" id="weapon-1-power-label" data-index="2"
+                            <label class="weapon-label weapon-power-label" id="weapon-2-power-label" data-index="2"
                                 style="color: var(--accent); font-weight: bold;">威力</label>
                             <div class="power-input-wrapper">
                                 <input type="number" id="weapon-2-power" class="power-input weapon-power-input" min="0"
                                     max="100" placeholder="-" style="width: 100%;" data-index="2">
-                                <button class="calc-btn weapon-calc-btn" data-index="2" title="ダメージ算出">🎲</button>
+                                <button type="button" class="calc-btn weapon-calc-btn" data-index="2"
+                                    title="ダメージ算出">🎲</button>
                             </div>
                         </div>
                         <div class="weapon-input-item">
@@ -950,7 +952,8 @@
                             <div class="power-input-wrapper">
                                 <input type="number" id="weapon-3-power" class="power-input weapon-power-input" min="0"
                                     max="100" placeholder="-" style="width: 100%;" data-index="3">
-                                <button class="calc-btn weapon-calc-btn" data-index="3" title="ダメージ算出">🎲</button>
+                                <button type="button" class="calc-btn weapon-calc-btn" data-index="3"
+                                    title="ダメージ算出">🎲</button>
                             </div>
                         </div>
                         <div class="weapon-input-item">
@@ -1002,7 +1005,8 @@
                             <div class="power-input-wrapper">
                                 <input type="number" id="weapon-4-power" class="power-input weapon-power-input" min="0"
                                     max="100" placeholder="-" style="width: 100%;" data-index="4">
-                                <button class="calc-btn weapon-calc-btn" data-index="4" title="ダメージ算出">🎲</button>
+                                <button type="button" class="calc-btn weapon-calc-btn" data-index="4"
+                                    title="ダメージ算出">🎲</button>
                             </div>
                         </div>
                         <div class="weapon-input-item">
@@ -1034,7 +1038,7 @@
                             <div class="power-input-wrapper">
                                 <input type="number" id="magic-power-input" class="power-input" min="0" max="100"
                                     placeholder="-" style="width: 100%;">
-                                <button id="magic-calc-btn" class="calc-btn" title="魔法ダメージ算出">🎲</button>
+                                <button type="button" id="magic-calc-btn" class="calc-btn" title="魔法ダメージ算出">🎲</button>
                             </div>
                         </div>
                         <div class="weapon-input-item">
@@ -1681,7 +1685,9 @@
             });
 
             document.querySelectorAll('.weapon-power-label, .weapon-calc-btn').forEach(el => {
-                el.addEventListener('click', () => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const idx = el.getAttribute('data-index');
                     const powerVal = document.getElementById(`weapon-${idx}-power`).value;
                     if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
@@ -1700,7 +1706,9 @@
             magicTriggerIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    el.addEventListener('click', () => {
+                    el.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const powerVal = document.getElementById('magic-power-input').value;
                         if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
                             alert('魔法威力を入力してください。');
