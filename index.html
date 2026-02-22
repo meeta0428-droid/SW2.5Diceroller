@@ -645,6 +645,41 @@
             padding: 1px 6px;
             border-radius: 4px;
         }
+
+        /* 威力算出ボタンのスタイル */
+        .power-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .calc-btn {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 6px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .calc-btn:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 
@@ -804,12 +839,15 @@
                                 style="width: 100%;">
                         </div>
                     </div>
-                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
                         <div class="weapon-input-item">
                             <label class="weapon-label weapon-power-label" id="weapon-1-power-label" data-index="1"
                                 style="color: var(--accent); font-weight: bold;">威力</label>
-                            <input type="number" id="weapon-1-power" class="power-input weapon-power-input" min="0"
-                                max="100" placeholder="-" style="width: 100%;" data-index="1">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-1-power" class="power-input weapon-power-input" min="0"
+                                    max="100" placeholder="-" style="width: 100%;" data-index="1">
+                                <button class="calc-btn weapon-calc-btn" data-index="1" title="ダメージ算出">🎲</button>
+                            </div>
                         </div>
                         <div class="weapon-input-item">
                             <label class="weapon-label">Ｃ値</label>
@@ -853,12 +891,15 @@
                                 style="width: 100%;">
                         </div>
                     </div>
-                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
                         <div class="weapon-input-item">
-                            <label class="weapon-label weapon-power-label" id="weapon-2-power-label" data-index="2"
+                            <label class="weapon-label weapon-power-label" id="weapon-1-power-label" data-index="2"
                                 style="color: var(--accent); font-weight: bold;">威力</label>
-                            <input type="number" id="weapon-2-power" class="power-input weapon-power-input" min="0"
-                                max="100" placeholder="-" style="width: 100%;" data-index="2">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-2-power" class="power-input weapon-power-input" min="0"
+                                    max="100" placeholder="-" style="width: 100%;" data-index="2">
+                                <button class="calc-btn weapon-calc-btn" data-index="2" title="ダメージ算出">🎲</button>
+                            </div>
                         </div>
                         <div class="weapon-input-item">
                             <label class="weapon-label">Ｃ値</label>
@@ -902,12 +943,15 @@
                                 style="width: 100%;">
                         </div>
                     </div>
-                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
                         <div class="weapon-input-item">
                             <label class="weapon-label weapon-power-label" id="weapon-3-power-label" data-index="3"
                                 style="color: var(--accent); font-weight: bold;">威力</label>
-                            <input type="number" id="weapon-3-power" class="power-input weapon-power-input" min="0"
-                                max="100" placeholder="-" style="width: 100%;" data-index="3">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-3-power" class="power-input weapon-power-input" min="0"
+                                    max="100" placeholder="-" style="width: 100%;" data-index="3">
+                                <button class="calc-btn weapon-calc-btn" data-index="3" title="ダメージ算出">🎲</button>
+                            </div>
                         </div>
                         <div class="weapon-input-item">
                             <label class="weapon-label">Ｃ値</label>
@@ -951,12 +995,15 @@
                                 style="width: 100%;">
                         </div>
                     </div>
-                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr;">
                         <div class="weapon-input-item">
                             <label class="weapon-label weapon-power-label" id="weapon-4-power-label" data-index="4"
                                 style="color: var(--accent); font-weight: bold;">威力</label>
-                            <input type="number" id="weapon-4-power" class="power-input weapon-power-input" min="0"
-                                max="100" placeholder="-" style="width: 100%;" data-index="4">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="weapon-4-power" class="power-input weapon-power-input" min="0"
+                                    max="100" placeholder="-" style="width: 100%;" data-index="4">
+                                <button class="calc-btn weapon-calc-btn" data-index="4" title="ダメージ算出">🎲</button>
+                            </div>
                         </div>
                         <div class="weapon-input-item">
                             <label class="weapon-label">Ｃ値</label>
@@ -980,12 +1027,15 @@
                     魔法
                 </div>
                 <div class="accordion-content">
-                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 1fr 1fr 1fr 2fr;">
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr 2fr;">
                         <div class="weapon-input-item">
                             <label class="weapon-label" id="magic-power-label"
                                 style="color: #a855f7; font-weight: bold; cursor: pointer;">魔法威力</label>
-                            <input type="number" id="magic-power-input" class="power-input" min="0" max="100"
-                                placeholder="-" style="width: 100%;">
+                            <div class="power-input-wrapper">
+                                <input type="number" id="magic-power-input" class="power-input" min="0" max="100"
+                                    placeholder="-" style="width: 100%;">
+                                <button id="magic-calc-btn" class="calc-btn" title="魔法ダメージ算出">🎲</button>
+                            </div>
                         </div>
                         <div class="weapon-input-item">
                             <label class="weapon-label" style="display: flex; align-items: center; gap: 5px;">
@@ -1630,7 +1680,7 @@
                 });
             });
 
-            document.querySelectorAll('.weapon-power-label').forEach(el => {
+            document.querySelectorAll('.weapon-power-label, .weapon-calc-btn').forEach(el => {
                 el.addEventListener('click', () => {
                     const idx = el.getAttribute('data-index');
                     const powerVal = document.getElementById(`weapon-${idx}-power`).value;
@@ -1646,18 +1696,23 @@
                 });
             });
 
-            // 魔法威力判定クリックイベント
-            document.getElementById('magic-power-label').addEventListener('click', () => {
-                const powerVal = document.getElementById('magic-power-input').value;
-                if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
-                    alert('魔法威力を入力してください。');
-                    return;
+            const magicTriggerIds = ['magic-power-label', 'magic-calc-btn'];
+            magicTriggerIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('click', () => {
+                        const powerVal = document.getElementById('magic-power-input').value;
+                        if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
+                            alert('魔法威力を入力してください。');
+                            return;
+                        }
+                        // ダイス数を2d6にセット
+                        diceCount = 2;
+                        updateDiceCountDisplay('magic');
+                        // ダメージロール実行
+                        rollDice('magic');
+                    });
                 }
-                // ダイス数を2d6にセット
-                diceCount = 2;
-                updateDiceCountDisplay('magic');
-                // ダメージロール実行
-                rollDice('magic');
             });
 
             function rollHitCheck(weaponName, hitBase) {
