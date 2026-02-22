@@ -166,6 +166,80 @@
             align-items: center;
         }
 
+        /* Webhook設定用のスタイル */
+        .setting-section {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .setting-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pc-name-container {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .pc-name-input {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .pc-name-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .webhook-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .webhook-url-input {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        .webhook-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
         .dice-container {
             display: flex;
             flex-wrap: wrap;
@@ -719,6 +793,25 @@
     <div class="container">
         <h1>ダイスローラー</h1>
 
+        <div class="pc-name-container">
+            <input type="text" id="pc-name" class="pc-name-input" placeholder="キャラクター名を入力">
+        </div>
+
+        <div class="setting-section">
+            <div class="setting-title">
+                <span>🔗 Discord連携設定</span>
+            </div>
+            <div class="webhook-input-group">
+                <input type="password" id="webhook-url" class="webhook-url-input" placeholder="Webhook URLを入力">
+                <div class="webhook-controls">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="webhook-enable"> Discordに送信する
+                    </label>
+                    <span id="webhook-status" style="font-size: 0.75rem; color: #94a3b8;"></span>
+                </div>
+            </div>
+        </div>
+
         <div class="file-input-wrapper">
             <label for="json-upload" class="file-label">
                 <span>📁 キャラクターJSONを読み込む</span>
@@ -1142,9 +1235,87 @@
             const totalScoreDisplay = document.getElementById('total-score');
             const historyContainer = document.getElementById('history-container');
             const jsonUpload = document.getElementById('json-upload');
-            const ratingTableContainer = document.getElementById('rating-table-container');
             const fateBtn = document.getElementById('fate-btn');
-            let lastRollData = null; // 運命変転用に直前のロール情報を保持
+            const pcNameInput = document.getElementById('pc-name');
+            const webhookUrlInput = document.getElementById('webhook-url');
+            const webhookEnableCheckbox = document.getElementById('webhook-enable');
+            const webhookStatus = document.getElementById('webhook-status');
+            const roundDisplay = document.getElementById('round-display');
+
+            let lastRollData = null;
+
+            // 設定の読み込み
+            pcNameInput.value = localStorage.getItem('sw25_pc_name') || '';
+            webhookUrlInput.value = localStorage.getItem('sw25_webhook_url') || '';
+            webhookEnableCheckbox.checked = localStorage.getItem('sw25_webhook_enable') === 'true';
+
+            // 設定の保存
+            const saveSettings = () => {
+                localStorage.setItem('sw25_pc_name', pcNameInput.value);
+                localStorage.setItem('sw25_webhook_url', webhookUrlInput.value);
+                localStorage.setItem('sw25_webhook_enable', webhookEnableCheckbox.checked);
+            };
+
+            pcNameInput.addEventListener('change', saveSettings);
+            webhookUrlInput.addEventListener('change', saveSettings);
+            webhookEnableCheckbox.addEventListener('change', saveSettings);
+
+            // Discord送信関数
+            async function sendToDiscord(rollData) {
+                if (!webhookEnableCheckbox.checked || !webhookUrlInput.value) return;
+
+                const pcName = pcNameInput.value || '冒険者';
+                const round = roundDisplay.textContent;
+
+                // バフ情報の取得
+                const buffInputs = document.querySelectorAll('.buff-item');
+                let activeBuffs = [];
+                buffInputs.forEach(item => {
+                    const name = item.querySelector('.buff-name').value;
+                    const val = item.querySelector('.buff-value').value;
+                    const dur = item.querySelector('.buff-duration').value;
+                    if (name && val) {
+                        activeBuffs.push(`${name}(${val > 0 ? '+' : ''}${val}) [残${dur}R]`);
+                    }
+                });
+
+                const content = {
+                    username: pcName,
+                    embeds: [{
+                        title: rollData.isFate ? `【運命変転】 ${rollData.title}` : rollData.title,
+                        description: `**結果: ${rollData.displayTotal}**\n${rollData.historyRolls}`,
+                        color: rollData.isFate ? 0x10b981 : (rollData.isAutoFail ? 0xef4444 : 0x6366f1),
+                        fields: [
+                            { name: "ラウンド", value: `${round}R`, inline: true }
+                        ],
+                        footer: { text: "SW2.5 ダイスローラー" },
+                        timestamp: new Date().toISOString()
+                    }]
+                };
+
+                if (activeBuffs.length > 0) {
+                    content.embeds[0].fields.push({ name: "適用中のバフ", value: activeBuffs.join('\n'), inline: false });
+                }
+
+                try {
+                    const response = await fetch(webhookUrlInput.value, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(content)
+                    });
+                    if (response.ok) {
+                        webhookStatus.textContent = '送信完了';
+                        webhookStatus.style.color = '#10b981';
+                    } else {
+                        webhookStatus.textContent = '送信失敗';
+                        webhookStatus.style.color = '#ef4444';
+                    }
+                } catch (err) {
+                    webhookStatus.textContent = '通信エラー';
+                    webhookStatus.style.color = '#ef4444';
+                }
+                setTimeout(() => { webhookStatus.textContent = ''; }, 3000);
+            }
 
             // アコーディオン開閉制御
             window.toggleAccordion = function (id) {
@@ -1338,9 +1509,6 @@
                 reader.readAsText(file);
             });
 
-            const roundDecreaseBtn = document.getElementById('round-decrease');
-            const roundIncreaseBtn = document.getElementById('round-increase');
-            const roundDisplay = document.getElementById('round-display');
             let roundCount = 1;
 
             roundDecreaseBtn.addEventListener('click', () => {
@@ -1700,7 +1868,16 @@
                     totalScoreDisplay.style.color = isFate ? '#10b981' : (isAutoFail ? '#ef4444' : 'var(--accent)');
                     totalScoreDisplay.style.fontSize = isAutoFail ? '2rem' : '1.8rem';
 
+                    const rollResultData = {
+                        isFate: isFate,
+                        title: isDamageRollApplied ? finalResultText : "判定",
+                        displayTotal: displayTotalStr,
+                        historyRolls: historyRollsStr,
+                        isAutoFail: isAutoFail
+                    };
+
                     addToHistory(diceCount, historyRollsStr, displayTotalStr, isAutoFail);
+                    sendToDiscord(rollResultData);
                     rollBtn.disabled = false;
                     rollBtn.textContent = 'ダイスを振る';
 
@@ -1859,7 +2036,16 @@
                     totalScoreDisplay.style.fontSize = '1.5rem';
                     totalScoreDisplay.className = 'total-score show';
 
+                    const rollResultData = {
+                        isFate: isFate,
+                        title: `${weaponName}命中判定`,
+                        displayTotal: resultText,
+                        historyRolls: `${diceTotal}[${d1},${d2}] + ${hitBase}`,
+                        isAutoFail: isAutoFail
+                    };
+
                     addToHistory(2, (isFate ? '運命変転:' : '') + `${weaponName}命中 ${detailStr}`, resultText, isAutoFail);
+                    sendToDiscord(rollResultData);
 
                     rollBtn.disabled = false;
                     rollBtn.textContent = 'ダイスを振る';
@@ -1985,7 +2171,16 @@
                     totalScoreDisplay.style.fontSize = '1.5rem';
                     totalScoreDisplay.className = 'total-score show';
 
+                    const rollResultData = {
+                        isFate: isFate,
+                        title: `${statName}/${skillName}判定`,
+                        displayTotal: resultText,
+                        historyRolls: `${diceTotal}[${d1},${d2}] + ${baseMod}`,
+                        isAutoFail: isAutoFail
+                    };
+
                     addToHistory(2, (isFate ? '運命変転:' : '') + `${statName}/${skillName} ${detailStr}`, resultText, isAutoFail);
+                    sendToDiscord(rollResultData);
 
                     rollBtn.disabled = false;
                     rollBtn.textContent = 'ダイスを振る';
