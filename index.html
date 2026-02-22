@@ -757,7 +757,14 @@
                         style="width: 100%;">
                 </div>
                 <div class="weapon-input-item">
-                    <label class="weapon-label">魔法Ｃ値</label>
+                    <label class="weapon-label" style="display: flex; align-items: center; gap: 5px;">
+                        魔法Ｃ値
+                        <label
+                            style="font-size: 0.7rem; font-weight: normal; color: var(--text-color); cursor: pointer; display: flex; align-items: center; gap: 2px;">
+                            <input type="checkbox" id="magic-no-crit" style="width: 12px; height: 12px; margin: 0;">
+                            クリなし
+                        </label>
+                    </label>
                     <input type="number" id="magic-crit-input" class="power-input" min="3" max="12" value="10"
                         style="width: 100%;">
                 </div>
@@ -846,6 +853,8 @@
                 });
                 const magicSelect = document.getElementById('magic-type-select');
                 if (magicSelect) magicSelect.innerHTML = '<option value="">(手動入力)</option>';
+                const magicNoCrit = document.getElementById('magic-no-crit');
+                if (magicNoCrit) magicNoCrit.checked = false;
 
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -1163,6 +1172,10 @@
                         if (type === 'magic' && mPowerInput.value !== '') {
                             power = parseInt(mPowerInput.value, 10);
                             critValue = parseInt(mCritInput.value, 10) || 10;
+                            // クリティカルなし設定の確認
+                            if (document.getElementById('magic-no-crit').checked) {
+                                critValue = 13; // 2d6では到達不可能な値にしてクリティカルを阻止
+                            }
                             const magicBonus = parseInt(document.getElementById('magic-bonus-input').value, 10) || 0;
                             extraDamageVal = magicBonus;
                             label = '魔法';
