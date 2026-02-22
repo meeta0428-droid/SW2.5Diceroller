@@ -1036,15 +1036,22 @@
                 }
             }
 
-            powerInput.addEventListener('input', updateRatingTable);
+            powerInput.addEventListener('input', () => updateRatingTable('weapon'));
+            const magicPowerInput = document.getElementById('magic-power-input');
+            if (magicPowerInput) {
+                magicPowerInput.addEventListener('input', () => updateRatingTable('magic'));
+            }
 
-            function updateRatingTable() {
+            function updateRatingTable(type = 'weapon') {
                 if (diceCount !== 2 || typeof damageTable === 'undefined') {
                     ratingTableContainer.className = 'rating-table-wrapper';
                     return;
                 }
 
-                const powerStr = powerInput.value;
+                let targetInput = (type === 'magic') ? document.getElementById('magic-power-input') : powerInput;
+                if (!targetInput) return;
+
+                const powerStr = targetInput.value;
                 if (powerStr === '') {
                     ratingTableContainer.className = 'rating-table-wrapper';
                     return;
@@ -1182,11 +1189,15 @@
                             const magicBonus = parseInt(document.getElementById('magic-bonus-input').value, 10) || 0;
                             extraDamageVal = magicBonus;
                             label = '魔法';
+                            // 判定開始時に威力表を更新
+                            updateRatingTable('magic');
                         } else if (wPowerInput.value !== '') {
                             power = parseInt(wPowerInput.value, 10);
                             critValue = parseInt(wCritInput.value, 10) || 10;
                             extraDamageVal = parseInt(document.getElementById('extra-dmg-input').value, 10) || 0;
                             label = document.getElementById('weapon-name').value || '武器';
+                            // 判定開始時に威力表を更新
+                            updateRatingTable('weapon');
                         }
 
                         if (!isNaN(power) && power >= 0 && power <= 100) {
