@@ -799,6 +799,21 @@
             const ratingTableContainer = document.getElementById('rating-table-container');
             const jsonUpload = document.getElementById('json-upload');
 
+            // 技能マッピング
+            const skillMap = {
+                'Fig': 'ファイター', 'Gra': 'グラップラー', 'Fen': 'フェンサー', 'Sho': 'シューター',
+                'Sor': 'ソーサラー', 'Con': 'コンジャラー', 'Pri': 'プリースト', 'Mag': 'マギテック',
+                'Fai': 'フェアリーテイマー', 'Dru': 'ドルイド', 'Dem': 'デーモンルーラー', 'Sco': 'スカウト',
+                'Ran': 'レンジャー', 'Sag': 'セージ', 'Rid': 'ライダー', 'Alc': 'アルケミスト',
+                'Bar': 'バード', 'War': 'ウォーリーダー', 'Mys': 'ミスティック', 'Art': 'アーティザン',
+                'Ari': 'アリストクラシー', 'Sch': 'スカラー', 'Bib': 'ビブリオマンサー', 'Dar': 'ダークハンター',
+                'Abys': 'アビスゲイザー', 'Sha': 'シャドウウィッチ', 'Phy': 'フィジカルマスター',
+                'Gri': 'グリモワール', 'Neu': 'シューター'
+            };
+
+            // 除外すべきシステム項目
+            const excludeList = ['lvCaster', 'lvCommon', 'lvMagic'];
+
             // JSON 読み込み機能
             jsonUpload.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -821,7 +836,7 @@
                     if (lvEl) lvEl.value = '';
                 }
 
-                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input', 'magic-power-input', 'magic-crit-input', 'magic-bonus-input'];
+                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input', 'magic-power-input', 'magic-crit-input', 'magic-bonus-input'];
                 weaponFields.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
@@ -891,45 +906,8 @@
                             }
                         });
 
-                        // 技能の入力 (ゆとシート形式を想定)
-                        // ゆとシートのJSON構造に合わせて技能を抽出
-                        // 例: lvAlc, lvBib, lvMag, lvSco 等のプロパティがある
-                        const skillMap = {
-                            'Fig': 'ファイター',
-                            'Gra': 'グラップラー',
-                            'Fen': 'フェンサー',
-                            'Sho': 'シューター',
-                            'Sor': 'ソーサラー',
-                            'Con': 'コンジャラー',
-                            'Pri': 'プリースト',
-                            'Mag': 'マギテック',
-                            'Fai': 'フェアリーテイマー',
-                            'Dru': 'ドルイド',
-                            'Dem': 'デーモンルーラー',
-                            'Sco': 'スカウト',
-                            'Ran': 'レンジャー',
-                            'Sag': 'セージ',
-                            'Rid': 'ライダー',
-                            'Alc': 'アルケミスト',
-                            'Bar': 'バード',
-                            'War': 'ウォーリーダー',
-                            'Mys': 'ミスティック',
-                            'Art': 'アーティザン',
-                            'Ari': 'アリストクラシー',
-                            'Sch': 'スカラー',
-                            'Bib': 'ビブリオマンサー',
-                            'Dar': 'ダークハンター',
-                            'Abys': 'アビスゲイザー',
-                            'Sha': 'シャドウウィッチ',
-                            'Dru': 'ドルイド',
-                            'Phy': 'フィジカルマスター',
-                            'Gri': 'グリモワール',
-                            'Neu': 'シューター'
-                        };
 
-                        // 除外すべきシステム項目
-                        const excludeList = ['lvCaster', 'lvCommon', 'lvMagic'];
-
+                        // 技能の入力
                         let foundSkills = [];
                         for (let key in data) {
                             if (key.startsWith('lv') && data[key] > 0 && !excludeList.includes(key)) {
