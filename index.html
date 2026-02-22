@@ -581,6 +581,70 @@
                 font-size: 1.5rem !important;
             }
         }
+
+        /* アコーディオン（武器・魔法セット）のスタイル */
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+        }
+
+        .accordion-header {
+            padding: 12px 18px;
+            background-color: rgba(99, 102, 241, 0.1);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: var(--text-color);
+            border-bottom: 1px solid transparent;
+        }
+
+        .accordion-header:hover {
+            background-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .accordion-header::after {
+            content: '▼';
+            font-size: 0.7rem;
+            transition: transform 0.3s;
+            color: var(--primary);
+        }
+
+        .accordion-item.collapsed .accordion-header::after {
+            transform: rotate(-90deg);
+        }
+
+        .accordion-item:not(.collapsed) .accordion-header {
+            border-bottom-color: var(--border-color);
+            background-color: rgba(99, 102, 241, 0.15);
+        }
+
+        .accordion-content {
+            padding: 15px;
+            display: block;
+        }
+
+        .accordion-item.collapsed .accordion-content {
+            display: none;
+        }
+
+        .weapon-title-tag {
+            font-size: 0.8rem;
+            font-weight: normal;
+            color: var(--accent);
+            margin-left: 10px;
+            border: 1px solid var(--accent);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 
@@ -710,74 +774,245 @@
             </div>
         </div>
 
-        <div id="power-group" class="power-input-group active" style="flex-direction: column; gap: 0;">
-            <div class="weapon-inputs-grid">
-                <div class="weapon-input-item">
-                    <label class="weapon-label">武器</label>
-                    <input type="text" id="weapon-name" class="power-input" style="width: 100%;" placeholder="名前">
+        <div id="weapons-container" style="width: 100%; margin-top: 10px;">
+            <!-- 武器セット 1-4 -->
+            <div class="accordion-item" id="weapon-set-1">
+                <div class="accordion-header" onclick="toggleAccordion('weapon-set-1')">
+                    武器 1 <span class="weapon-title-tag" id="weapon-1-tag" style="display: none;"></span>
                 </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label">用法</label>
-                    <input type="text" id="weapon-usage" class="power-input" style="width: 100%;" placeholder="-">
-                </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label">必筋</label>
-                    <input type="number" id="weapon-reqd" class="power-input" style="width: 100%;" placeholder="0">
-                </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label clickable-stat" id="hit-label"
-                        style="color: var(--accent); font-weight: bold;">命中力</label>
-                    <input type="number" id="hit-input" class="power-input" placeholder="0" style="width: 100%;">
+                <div class="accordion-content">
+                    <div class="weapon-inputs-grid">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">名前</label>
+                            <input type="text" id="weapon-1-name" class="power-input weapon-name-input"
+                                style="width: 100%;" placeholder="名前" data-index="1">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">用法</label>
+                            <input type="text" id="weapon-1-usage" class="power-input" style="width: 100%;"
+                                placeholder="-">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">必筋</label>
+                            <input type="number" id="weapon-1-reqd" class="power-input" style="width: 100%;"
+                                placeholder="0">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-1-hit-label"
+                                data-index="1" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <input type="number" id="weapon-1-hit" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-1-power-label"
+                                data-index="1" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <input type="number" id="weapon-1-power" class="power-input weapon-power-input" min="0"
+                                max="100" placeholder="-" style="width: 100%;" data-index="1">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">Ｃ値</label>
+                            <input type="number" id="weapon-1-crit" class="power-input" min="3" max="12" value="10"
+                                style="width: 100%;">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">追加Ｄ</label>
+                            <input type="number" id="weapon-1-extra-dmg" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="weapon-inputs-grid-2">
-                <div class="weapon-input-item">
-                    <label class="weapon-label clickable-stat" id="power-label"
-                        style="color: var(--accent); font-weight: bold;">威力</label>
-                    <input type="number" id="power-input" class="power-input" min="0" max="100" placeholder="-"
-                        style="width: 100%;">
+            <div class="accordion-item collapsed" id="weapon-set-2">
+                <div class="accordion-header" onclick="toggleAccordion('weapon-set-2')">
+                    武器 2 <span class="weapon-title-tag" id="weapon-2-tag" style="display: none;"></span>
                 </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label">Ｃ値</label>
-                    <input type="number" id="crit-input" class="power-input" min="3" max="12" value="10"
-                        style="width: 100%;">
-                </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label">追加Ｄ</label>
-                    <input type="number" id="extra-dmg-input" class="power-input" placeholder="0" style="width: 100%;">
+                <div class="accordion-content">
+                    <div class="weapon-inputs-grid">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">名前</label>
+                            <input type="text" id="weapon-2-name" class="power-input weapon-name-input"
+                                style="width: 100%;" placeholder="名前" data-index="2">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">用法</label>
+                            <input type="text" id="weapon-2-usage" class="power-input" style="width: 100%;"
+                                placeholder="-">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">必筋</label>
+                            <input type="number" id="weapon-2-reqd" class="power-input" style="width: 100%;"
+                                placeholder="0">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-2-hit-label"
+                                data-index="2" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <input type="number" id="weapon-2-hit" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-2-power-label"
+                                data-index="2" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <input type="number" id="weapon-2-power" class="power-input weapon-power-input" min="0"
+                                max="100" placeholder="-" style="width: 100%;" data-index="2">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">Ｃ値</label>
+                            <input type="number" id="weapon-2-crit" class="power-input" min="3" max="12" value="10"
+                                style="width: 100%;">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">追加Ｄ</label>
+                            <input type="number" id="weapon-2-extra-dmg" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="weapon-inputs-grid-2" style="margin-bottom: 10px; grid-template-columns: 1fr 1fr 1fr 2fr;">
-                <div class="weapon-input-item">
-                    <label class="weapon-label clickable-stat" id="magic-power-label"
-                        style="color: #a855f7; font-weight: bold;">魔法威力</label>
-                    <input type="number" id="magic-power-input" class="power-input" min="0" max="100" placeholder="-"
-                        style="width: 100%;">
+            <div class="accordion-item collapsed" id="weapon-set-3">
+                <div class="accordion-header" onclick="toggleAccordion('weapon-set-3')">
+                    武器 3 <span class="weapon-title-tag" id="weapon-3-tag" style="display: none;"></span>
                 </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label" style="display: flex; align-items: center; gap: 5px;">
-                        魔法Ｃ値
-                        <label
-                            style="font-size: 0.7rem; font-weight: normal; color: var(--text-color); cursor: pointer; display: flex; align-items: center; gap: 2px;">
-                            <input type="checkbox" id="magic-no-crit" style="width: 12px; height: 12px; margin: 0;">
-                            クリなし
-                        </label>
-                    </label>
-                    <input type="number" id="magic-crit-input" class="power-input" min="3" max="12" value="10"
-                        style="width: 100%;">
+                <div class="accordion-content">
+                    <div class="weapon-inputs-grid">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">名前</label>
+                            <input type="text" id="weapon-3-name" class="power-input weapon-name-input"
+                                style="width: 100%;" placeholder="名前" data-index="3">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">用法</label>
+                            <input type="text" id="weapon-3-usage" class="power-input" style="width: 100%;"
+                                placeholder="-">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">必筋</label>
+                            <input type="number" id="weapon-3-reqd" class="power-input" style="width: 100%;"
+                                placeholder="0">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-3-hit-label"
+                                data-index="3" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <input type="number" id="weapon-3-hit" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-3-power-label"
+                                data-index="3" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <input type="number" id="weapon-3-power" class="power-input weapon-power-input" min="0"
+                                max="100" placeholder="-" style="width: 100%;" data-index="3">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">Ｃ値</label>
+                            <input type="number" id="weapon-3-crit" class="power-input" min="3" max="12" value="10"
+                                style="width: 100%;">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">追加Ｄ</label>
+                            <input type="number" id="weapon-3-extra-dmg" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
                 </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label">魔力</label>
-                    <input type="number" id="magic-bonus-input" class="power-input" placeholder="0"
-                        style="width: 100%;">
+            </div>
+
+            <div class="accordion-item collapsed" id="weapon-set-4">
+                <div class="accordion-header" onclick="toggleAccordion('weapon-set-4')">
+                    武器 4 <span class="weapon-title-tag" id="weapon-4-tag" style="display: none;"></span>
                 </div>
-                <div class="weapon-input-item">
-                    <label class="weapon-label">魔力種別</label>
-                    <select id="magic-type-select" class="power-input" style="width: 100%; height: 38px; padding: 5px;">
-                        <option value="">(手動入力)</option>
-                    </select>
+                <div class="accordion-content">
+                    <div class="weapon-inputs-grid">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">名前</label>
+                            <input type="text" id="weapon-4-name" class="power-input weapon-name-input"
+                                style="width: 100%;" placeholder="名前" data-index="4">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">用法</label>
+                            <input type="text" id="weapon-4-usage" class="power-input" style="width: 100%;"
+                                placeholder="-">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">必筋</label>
+                            <input type="number" id="weapon-4-reqd" class="power-input" style="width: 100%;"
+                                placeholder="0">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-4-hit-label"
+                                data-index="4" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <input type="number" id="weapon-4-hit" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-4-power-label"
+                                data-index="4" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <input type="number" id="weapon-4-power" class="power-input weapon-power-input" min="0"
+                                max="100" placeholder="-" style="width: 100%;" data-index="4">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">Ｃ値</label>
+                            <input type="number" id="weapon-4-crit" class="power-input" min="3" max="12" value="10"
+                                style="width: 100%;">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">追加Ｄ</label>
+                            <input type="number" id="weapon-4-extra-dmg" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 魔法セクション -->
+        <div id="magic-container" style="width: 100%; margin-bottom: 10px;">
+            <div class="accordion-item collapsed" id="magic-set">
+                <div class="accordion-header" onclick="toggleAccordion('magic-set')">
+                    魔法
+                </div>
+                <div class="accordion-content">
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 1fr 1fr 1fr 2fr;">
+                        <div class="weapon-input-item">
+                            <label class="weapon-label clickable-stat" id="magic-power-label"
+                                style="color: #a855f7; font-weight: bold;">魔法威力</label>
+                            <input type="number" id="magic-power-input" class="power-input" min="0" max="100"
+                                placeholder="-" style="width: 100%;">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label" style="display: flex; align-items: center; gap: 5px;">
+                                魔法Ｃ値
+                                <label
+                                    style="font-size: 0.7rem; font-weight: normal; color: var(--text-color); cursor: pointer; display: flex; align-items: center; gap: 2px;">
+                                    <input type="checkbox" id="magic-no-crit"
+                                        style="width: 12px; height: 12px; margin: 0;">
+                                    クリなし
+                                </label>
+                            </label>
+                            <input type="number" id="magic-crit-input" class="power-input" min="3" max="12" value="10"
+                                style="width: 100%;">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">魔力</label>
+                            <input type="number" id="magic-bonus-input" class="power-input" placeholder="0"
+                                style="width: 100%;">
+                        </div>
+                        <div class="weapon-input-item">
+                            <label class="weapon-label">魔力種別</label>
+                            <select id="magic-type-select" class="power-input"
+                                style="width: 100%; height: 38px; padding: 5px;">
+                                <option value="">(手動入力)</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -802,9 +1037,23 @@
             const diceContainer = document.getElementById('dice-container');
             const totalScoreDisplay = document.getElementById('total-score');
             const historyContainer = document.getElementById('history-container');
-            const powerInput = document.getElementById('power-input');
-            const ratingTableContainer = document.getElementById('rating-table-container');
             const jsonUpload = document.getElementById('json-upload');
+            const ratingTableContainer = document.getElementById('rating-table-container');
+
+            // アコーディオン開閉制御
+            window.toggleAccordion = function (id) {
+                const item = document.getElementById(id);
+                const isCollapsed = item.classList.contains('collapsed');
+
+                // 武器セットの場合は他の武器セットを閉じる（任意。今回は個別に開閉可能とする）
+                // item.classList.toggle('collapsed');
+
+                if (isCollapsed) {
+                    item.classList.remove('collapsed');
+                } else {
+                    item.classList.add('collapsed');
+                }
+            };
 
             // 技能マッピング
             const skillMap = {
@@ -843,11 +1092,26 @@
                     if (lvEl) lvEl.value = '';
                 }
 
-                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input', 'magic-power-input', 'magic-crit-input', 'magic-bonus-input'];
+                const weaponFields = ['magic-power-input', 'magic-crit-input', 'magic-bonus-input'];
+                // 武器1-4のフィールドをリセット
+                for (let i = 1; i <= 4; i++) {
+                    ['name', 'usage', 'reqd', 'hit', 'power', 'crit', 'extra-dmg'].forEach(suffix => {
+                        const el = document.getElementById(`weapon-${i}-${suffix}`);
+                        if (el) {
+                            if (suffix === 'crit') el.value = '10';
+                            else el.value = '';
+                        }
+                    });
+                    const tag = document.getElementById(`weapon-${i}-tag`);
+                    if (tag) {
+                        tag.style.display = 'none';
+                        tag.textContent = '';
+                    }
+                }
                 weaponFields.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
-                        if (id === 'crit-input' || id === 'magic-crit-input') el.value = '10';
+                        if (id.includes('crit')) el.value = '10';
                         else el.value = '';
                     }
                 });
@@ -875,14 +1139,28 @@
                         if (data.sttMnd) document.getElementById('stt-mnd').value = data.sttMnd;
                         if (data.bonusMnd) document.getElementById('bonus-mnd').value = data.bonusMnd;
 
-                        // 武器データの入力 (weapon1をデフォルトとする)
-                        if (data.weapon1Name) document.getElementById('weapon-name').value = data.weapon1Name;
-                        if (data.weapon1Usage) document.getElementById('weapon-usage').value = data.weapon1Usage;
-                        if (data.weapon1Reqd) document.getElementById('weapon-reqd').value = data.weapon1Reqd;
-                        if (data.weapon1AccTotal) document.getElementById('hit-input').value = data.weapon1AccTotal;
-                        if (data.weapon1Rate) document.getElementById('power-input').value = data.weapon1Rate;
-                        if (data.weapon1Crit) document.getElementById('crit-input').value = data.weapon1Crit;
-                        if (data.weapon1DmgTotal) document.getElementById('extra-dmg-input').value = data.weapon1DmgTotal;
+                        // 武器データの入力 (1〜4)
+                        for (let i = 1; i <= 4; i++) {
+                            const wName = data[`weapon${i}Name`];
+                            if (wName) {
+                                document.getElementById(`weapon-${i}-name`).value = wName;
+                                document.getElementById(`weapon-${i}-usage`).value = data[`weapon${i}Usage`] || '';
+                                document.getElementById(`weapon-${i}-reqd`).value = data[`weapon${i}Reqd`] || '';
+                                document.getElementById(`weapon-${i}-hit`).value = data[`weapon${i}AccTotal`] || '';
+                                document.getElementById(`weapon-${i}-power`).value = data[`weapon${i}Rate`] || '';
+                                document.getElementById(`weapon-${i}-crit`).value = data[`weapon${i}Crit`] || '10';
+                                document.getElementById(`weapon-${i}-extra-dmg`).value = data[`weapon${i}DmgTotal`] || '';
+
+                                // ヘッダーに名前を表示
+                                const tag = document.getElementById(`weapon-${i}-tag`);
+                                if (tag) {
+                                    tag.textContent = wName;
+                                    tag.style.display = 'inline-block';
+                                }
+                                // データがある場合は開く（1つ目のみ、またはデータがあるものすべて）
+                                if (i === 1) document.getElementById(`weapon-set-${i}`).classList.remove('collapsed');
+                            }
+                        }
 
                         // 全ての魔力データを抽出してセレクトボックスを生成
                         const magicSelect = document.getElementById('magic-type-select');
@@ -1019,36 +1297,64 @@
                 }
             });
 
-            function updateDiceCountDisplay(type = 'weapon') {
+            function updateDiceCountDisplay(type = 'weapon', weaponIdx = '1') {
                 diceCountDisplay.textContent = `${diceCount}d6`;
                 decreaseBtn.disabled = diceCount <= MIN_DICE;
                 increaseBtn.disabled = diceCount >= MAX_DICE;
 
-                const powerGroup = document.getElementById('power-group');
-                if (powerGroup) {
-                    if (diceCount === 2) {
-                        powerGroup.className = 'power-input-group active';
-                        updateRatingTable(type);
-                    } else {
-                        powerGroup.className = 'power-input-group';
-                        ratingTableContainer.className = 'rating-table-wrapper';
-                    }
+                if (diceCount === 2) {
+                    updateRatingTable(type, weaponIdx);
+                } else {
+                    ratingTableContainer.className = 'rating-table-wrapper';
                 }
             }
 
-            powerInput.addEventListener('input', () => updateRatingTable('weapon'));
+            // 武器名の入力監視
+            document.querySelectorAll('.weapon-name-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const idx = e.target.getAttribute('data-index');
+                    const tag = document.getElementById(`weapon-${idx}-tag`);
+                    if (tag) {
+                        tag.textContent = e.target.value;
+                        tag.style.display = e.target.value ? 'inline-block' : 'none';
+                    }
+                });
+            });
+
+            // 威力入力の監視
+            document.querySelectorAll('.weapon-power-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const idx = e.target.getAttribute('data-index');
+                    updateRatingTable('weapon', idx);
+                });
+            });
+
             const magicPowerInput = document.getElementById('magic-power-input');
             if (magicPowerInput) {
                 magicPowerInput.addEventListener('input', () => updateRatingTable('magic'));
             }
 
-            function updateRatingTable(type = 'weapon') {
+            function updateRatingTable(typeOrIndexedType = 'weapon', weaponIdx = '1') {
                 if (diceCount !== 2 || typeof damageTable === 'undefined') {
                     ratingTableContainer.className = 'rating-table-wrapper';
                     return;
                 }
 
-                let targetInput = (type === 'magic') ? document.getElementById('magic-power-input') : powerInput;
+                let targetInput;
+                let actualType = typeOrIndexedType;
+                let actualIdx = weaponIdx;
+
+                if (typeOrIndexedType.startsWith('weapon-')) {
+                    actualType = 'weapon';
+                    actualIdx = typeOrIndexedType.split('-')[1];
+                }
+
+                if (actualType === 'magic') {
+                    targetInput = document.getElementById('magic-power-input');
+                } else {
+                    targetInput = document.getElementById(`weapon-${actualIdx}-power`);
+                }
+
                 if (!targetInput) return;
 
                 const powerStr = targetInput.value;
@@ -1067,7 +1373,8 @@
                 const rowData = damageTable[power];
                 if (!rowData) return;
 
-                let html = '<table class="rating-table"><thead><tr>';
+                let html = `<div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px; text-align: left;">威力表: ${type === 'magic' ? '魔法' : '武器' + weaponIdx} (レート${power})</div>`;
+                html += '<table class="rating-table"><thead><tr>';
                 // Headers 3 to 12
                 for (let i = 3; i <= 12; i++) {
                     html += `<th>${i}</th>`;
@@ -1175,12 +1482,10 @@
                     let historyRollsStr = results.join(', ');
 
                     if (diceCount === 2) {
-                        const wPowerInput = document.getElementById('power-input');
-                        const wCritInput = document.getElementById('crit-input');
                         const mPowerInput = document.getElementById('magic-power-input');
                         const mCritInput = document.getElementById('magic-crit-input');
 
-                        let power, critValue, extraDamageVal = 0, label = '武器';
+                        let power, critValue, extraDamageVal = 0, label = '判定';
 
                         if (type === 'magic' && mPowerInput.value !== '') {
                             power = parseInt(mPowerInput.value, 10);
@@ -1192,11 +1497,23 @@
                             const magicBonus = parseInt(document.getElementById('magic-bonus-input').value, 10) || 0;
                             extraDamageVal = magicBonus;
                             label = '魔法';
-                        } else if (wPowerInput.value !== '') {
-                            power = parseInt(wPowerInput.value, 10);
-                            critValue = parseInt(wCritInput.value, 10) || 10;
-                            extraDamageVal = parseInt(document.getElementById('extra-dmg-input').value, 10) || 0;
-                            label = document.getElementById('weapon-name').value || '武器';
+                            // 判定開始時に威力表を更新
+                            updateRatingTable('magic');
+                        } else if (type.startsWith('weapon-')) {
+                            const idx = type.split('-')[1];
+                            const wPowerInput = document.getElementById(`weapon-${idx}-power`);
+                            const wCritInput = document.getElementById(`weapon-${idx}-crit`);
+                            const wNameInput = document.getElementById(`weapon-${idx}-name`);
+                            const wExtraDmgInput = document.getElementById(`weapon-${idx}-extra-dmg`);
+
+                            if (wPowerInput && wPowerInput.value !== '') {
+                                power = parseInt(wPowerInput.value, 10);
+                                critValue = parseInt(wCritInput.value, 10) || 10;
+                                extraDamageVal = parseInt(wExtraDmgInput.value, 10) || 0;
+                                label = wNameInput.value || `武器${idx}`;
+                                // 判定開始時に威力表を更新
+                                updateRatingTable('weapon', idx);
+                            }
                         }
 
                         if (!isNaN(power) && power >= 0 && power <= 100) {
@@ -1319,25 +1636,30 @@
                 }
             }
 
-            // 命中判定クリックイベント
-            document.getElementById('hit-label').addEventListener('click', () => {
-                const hitBase = parseInt(document.getElementById('hit-input').value, 10) || 0;
-                const weaponName = document.getElementById('weapon-name').value || '武器';
-                rollHitCheck(weaponName, hitBase);
+            // 命中判定・威力判定クリックイベント（動的に割り当て）
+            document.querySelectorAll('.weapon-hit-label').forEach(el => {
+                el.addEventListener('click', () => {
+                    const idx = el.getAttribute('data-index');
+                    const hitBase = parseInt(document.getElementById(`weapon-${idx}-hit`).value, 10) || 0;
+                    const weaponName = document.getElementById(`weapon-${idx}-name`).value || `武器${idx}`;
+                    rollHitCheck(weaponName, hitBase);
+                });
             });
 
-            // 威力判定（ダメージ計算）クリックイベント
-            document.getElementById('power-label').addEventListener('click', () => {
-                const powerVal = document.getElementById('power-input').value;
-                if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
-                    alert('威力を入力してください。');
-                    return;
-                }
-                // ダイス数を2d6にセット
-                diceCount = 2;
-                updateDiceCountDisplay('weapon');
-                // ダメージロール実行
-                rollDice('weapon');
+            document.querySelectorAll('.weapon-power-label').forEach(el => {
+                el.addEventListener('click', () => {
+                    const idx = el.getAttribute('data-index');
+                    const powerVal = document.getElementById(`weapon-${idx}-power`).value;
+                    if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
+                        alert('威力を入力してください。');
+                        return;
+                    }
+                    // ダイス数を2d6にセット
+                    diceCount = 2;
+                    updateDiceCountDisplay(`weapon`, idx);
+                    // ダメージロール実行
+                    rollDice(`weapon-${idx}`);
+                });
             });
 
             // 魔法威力判定クリックイベント
