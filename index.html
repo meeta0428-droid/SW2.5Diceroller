@@ -748,6 +748,21 @@
                     <input type="number" id="extra-dmg-input" class="power-input" placeholder="0" style="width: 100%;">
                 </div>
             </div>
+
+            <div class="weapon-inputs-grid-2" style="margin-bottom: 10px;">
+                <div class="weapon-input-item">
+                    <label class="weapon-label clickable-stat" id="magic-power-label"
+                        style="color: #a855f7; font-weight: bold;">魔法威力</label>
+                    <input type="number" id="magic-power-input" class="power-input" min="0" max="100" placeholder="-"
+                        style="width: 100%;">
+                </div>
+                <div class="weapon-input-item">
+                    <label class="weapon-label">魔法Ｃ値</label>
+                    <input type="number" id="magic-crit-input" class="power-input" min="3" max="12" value="10"
+                        style="width: 100%;">
+                </div>
+                <div></div>
+            </div>
         </div>
 
         <div id="rating-table-container" class="rating-table-wrapper">
@@ -796,11 +811,11 @@
                     if (lvEl) lvEl.value = '';
                 }
 
-                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input'];
+                const weaponFields = ['weapon-name', 'weapon-usage', 'weapon-reqd', 'weapon-name', 'power-input', 'crit-input', 'extra-dmg-input', 'hit-input', 'magic-power-input', 'magic-crit-input'];
                 weaponFields.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
-                        if (id === 'crit-input') el.value = '10';
+                        if (id === 'crit-input' || id === 'magic-crit-input') el.value = '10';
                         else el.value = '';
                     }
                 });
@@ -1031,7 +1046,7 @@
                 ratingTableContainer.className = 'rating-table-wrapper show';
             }
 
-            function rollDice() {
+            function rollDice(type = 'weapon') {
                 // Disable button during animation
                 rollBtn.disabled = true;
                 rollBtn.textContent = '判定中...';
@@ -1117,82 +1132,92 @@
                     let historyRollsStr = results.join(', ');
 
                     if (diceCount === 2) {
-                        const powerInput = document.getElementById('power-input');
-                        const critInput = document.getElementById('crit-input');
-                        if (powerInput.value !== '') {
-                            const power = parseInt(powerInput.value, 10);
-                            const critValue = parseInt(critInput.value, 10) || 10;
+                        const wPowerInput = document.getElementById('power-input');
+                        const wCritInput = document.getElementById('crit-input');
+                        const mPowerInput = document.getElementById('magic-power-input');
+                        const mCritInput = document.getElementById('magic-crit-input');
 
-                            if (!isNaN(power) && power >= 0 && power <= 100) {
-                                // 最初のロールはアニメーションで表示されたものをそのまま使う
-                                const firstD1 = results[0];
-                                const firstD2 = results[1];
-                                const firstTotal = firstD1 + firstD2;
+                        let power, critValue, extraDamageVal = 0, label = '武器';
 
-                                let currentDamage = 0;
-                                let rollDetails = [`${firstD1},${firstD2}(=${firstTotal})`];
+                        if (type === 'magic' && mPowerInput.value !== '') {
+                            power = parseInt(mPowerInput.value, 10);
+                            critValue = parseInt(mCritInput.value, 10) || 10;
+                            label = '魔法';
+                        } else if (wPowerInput.value !== '') {
+                            power = parseInt(wPowerInput.value, 10);
+                            critValue = parseInt(wCritInput.value, 10) || 10;
+                            extraDamageVal = parseInt(document.getElementById('extra-dmg-input').value, 10) || 0;
+                            label = document.getElementById('weapon-name').value || '武器';
+                        }
 
-                                if (firstTotal === 2) {
-                                    finalResultText = `自動失敗 (出目2)`;
-                                    isAutoFail = true;
-                                    displayTotalStr = '自動失敗';
-                                    historyRollsStr = rollDetails[0];
+                        if (!isNaN(power) && power >= 0 && power <= 100) {
+                            // 最初のロールはアニメーションで表示されたものをそのまま使う
+                            const firstD1 = results[0];
+                            const firstD2 = results[1];
+                            const firstTotal = firstD1 + firstD2;
+
+                            let currentDamage = 0;
+                            let rollDetails = [`${firstD1},${firstD2}(=${firstTotal})`];
+
+                            if (firstTotal === 2) {
+                                finalResultText = `自動失敗 (出目2)`;
+                                isAutoFail = true;
+                                displayTotalStr = '自動失敗';
+                                historyRollsStr = rollDetails[0];
+                            } else {
+                                if (typeof damageTable !== 'undefined') {
+                                    currentDamage = damageTable[power][firstTotal - 3];
+                                }
+
+                                const combinedBuff = totalBuff + extraDamageVal;
+
+                                if (firstTotal >= critValue) {
+                                    rollDetails[0] += ' クリティカル!';
+                                    // 振り足し開始
+                                    const critResult = calculateDamage(power, critValue, currentDamage, 1, rollDetails);
+                                    const finalDamage = critResult.damage + combinedBuff;
+
+                                    // 画面にクリティカル分のダイスを追加表示する
+                                    if (critResult.extraDice && critResult.extraDice.length > 0) {
+                                        // クリティカルテキストを間に挟む
+                                        const plusSpan = document.createElement('div');
+                                        plusSpan.textContent = '＋';
+                                        plusSpan.style.fontSize = '1.5rem';
+                                        plusSpan.style.color = 'var(--accent)';
+                                        plusSpan.style.display = 'flex';
+                                        plusSpan.style.alignItems = 'center';
+                                        plusSpan.style.margin = '0 10px';
+                                        plusSpan.className = 'die show';
+                                        plusSpan.style.background = 'none';
+                                        plusSpan.style.boxShadow = 'none';
+                                        diceContainer.appendChild(plusSpan);
+
+                                        critResult.extraDice.forEach(resultVal => {
+                                            const die = document.createElement('div');
+                                            die.className = 'die show';
+                                            die.textContent = resultVal;
+                                            diceContainer.appendChild(die);
+                                        });
+                                    }
+
+                                    let modifierText = combinedBuff > 0 ? `+${combinedBuff}` : (combinedBuff < 0 ? `${combinedBuff}` : '');
+                                    finalResultText = `${label}ダメージ: ${finalDamage} (威力${power}, クリ${critValue}${modifierText ? ', 修正' + modifierText : ''})`;
+                                    displayTotalStr = finalDamage.toString();
+                                    historyRollsStr = critResult.rolls.join(' ＞ ') + (modifierText ? ` 修正${modifierText}` : '');
                                 } else {
-                                    if (typeof damageTable !== 'undefined') {
-                                        currentDamage = damageTable[power][firstTotal - 3];
-                                    }
-
-                                    const extraDamage = parseInt(document.getElementById('extra-dmg-input').value, 10) || 0;
-                                    const combinedBuff = totalBuff + extraDamage;
-
-                                    if (firstTotal >= critValue) {
-                                        rollDetails[0] += ' クリティカル!';
-                                        // 振り足し開始
-                                        const critResult = calculateDamage(power, critValue, currentDamage, 1, rollDetails);
-                                        const finalDamage = critResult.damage + combinedBuff;
-
-                                        // 画面にクリティカル分のダイスを追加表示する
-                                        if (critResult.extraDice && critResult.extraDice.length > 0) {
-                                            // クリティカルテキストを間に挟む
-                                            const plusSpan = document.createElement('div');
-                                            plusSpan.textContent = '＋';
-                                            plusSpan.style.fontSize = '1.5rem';
-                                            plusSpan.style.color = 'var(--accent)';
-                                            plusSpan.style.display = 'flex';
-                                            plusSpan.style.alignItems = 'center';
-                                            plusSpan.style.margin = '0 10px';
-                                            plusSpan.className = 'die show';
-                                            plusSpan.style.background = 'none';
-                                            plusSpan.style.boxShadow = 'none';
-                                            diceContainer.appendChild(plusSpan);
-
-                                            critResult.extraDice.forEach(resultVal => {
-                                                const die = document.createElement('div');
-                                                die.className = 'die show';
-                                                die.textContent = resultVal;
-                                                diceContainer.appendChild(die);
-                                            });
-                                        }
-
-                                        let modifierText = combinedBuff > 0 ? `+${combinedBuff}` : (combinedBuff < 0 ? `${combinedBuff}` : '');
-                                        const weaponName = document.getElementById('weapon-name').value || '武器';
-                                        finalResultText = `${weaponName}ダメージ: ${finalDamage} (威力${power}, クリ${critValue}${modifierText ? ', 修正' + modifierText : ''})`;
-                                        displayTotalStr = finalDamage.toString();
-                                        historyRollsStr = critResult.rolls.join(' ＞ ') + (modifierText ? ` 修正${modifierText}` : '');
-                                    } else {
-                                        let currentFinal = currentDamage + combinedBuff;
-                                        let modifierText = combinedBuff > 0 ? `+${combinedBuff}` : (combinedBuff < 0 ? `${combinedBuff}` : '');
-                                        const weaponName = document.getElementById('weapon-name').value || '武器';
-                                        finalResultText = `${weaponName}ダメージ: ${currentFinal} (出目${firstTotal}, 威力${power}${modifierText ? ', 修正' + modifierText : ''})`;
-                                        displayTotalStr = currentFinal.toString();
-                                        historyRollsStr = rollDetails[0] + (modifierText ? ` 修正${modifierText}` : '');
-                                    }
+                                    let currentFinal = currentDamage + combinedBuff;
+                                    let modifierText = combinedBuff > 0 ? `+${combinedBuff}` : (combinedBuff < 0 ? `${combinedBuff}` : '');
+                                    finalResultText = `${label}ダメージ: ${currentFinal} (出目${firstTotal}, 威力${power}${modifierText ? ', 修正' + modifierText : ''})`;
+                                    displayTotalStr = currentFinal.toString();
+                                    historyRollsStr = rollDetails[0] + (modifierText ? ` 修正${modifierText}` : '');
                                 }
                             }
                         }
                     }
 
-                    if (diceCount !== 2 || powerInput.value === '') {
+                    const pInput = document.getElementById('power-input');
+                    const mpInput = document.getElementById('magic-power-input');
+                    if (diceCount !== 2 || (pInput.value === '' && mpInput.value === '')) {
                         // Regular dice roll with buffs (or 2d6 without power input)
                         total += totalBuff;
                         let buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
@@ -1263,7 +1288,21 @@
                 diceCount = 2;
                 updateDiceCountDisplay();
                 // ダメージロール実行
-                rollDice();
+                rollDice('weapon');
+            });
+
+            // 魔法威力判定クリックイベント
+            document.getElementById('magic-power-label').addEventListener('click', () => {
+                const powerVal = document.getElementById('magic-power-input').value;
+                if (powerVal === '' || isNaN(parseInt(powerVal, 10))) {
+                    alert('魔法威力を入力してください。');
+                    return;
+                }
+                // ダイス数を2d6にセット
+                diceCount = 2;
+                updateDiceCountDisplay();
+                // ダメージロール実行
+                rollDice('magic');
             });
 
             function rollHitCheck(weaponName, hitBase) {
