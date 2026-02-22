@@ -798,16 +798,16 @@
                                 placeholder="0">
                         </div>
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-1-hit-label"
-                                data-index="1" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <label class="weapon-label weapon-hit-label" id="weapon-1-hit-label" data-index="1"
+                                style="color: var(--accent); font-weight: bold;">命中力</label>
                             <input type="number" id="weapon-1-hit" class="power-input" placeholder="0"
                                 style="width: 100%;">
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-1-power-label"
-                                data-index="1" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <label class="weapon-label weapon-power-label" id="weapon-1-power-label" data-index="1"
+                                style="color: var(--accent); font-weight: bold;">威力</label>
                             <input type="number" id="weapon-1-power" class="power-input weapon-power-input" min="0"
                                 max="100" placeholder="-" style="width: 100%;" data-index="1">
                         </div>
@@ -847,16 +847,16 @@
                                 placeholder="0">
                         </div>
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-2-hit-label"
-                                data-index="2" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <label class="weapon-label weapon-hit-label" id="weapon-2-hit-label" data-index="2"
+                                style="color: var(--accent); font-weight: bold;">命中力</label>
                             <input type="number" id="weapon-2-hit" class="power-input" placeholder="0"
                                 style="width: 100%;">
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-2-power-label"
-                                data-index="2" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <label class="weapon-label weapon-power-label" id="weapon-2-power-label" data-index="2"
+                                style="color: var(--accent); font-weight: bold;">威力</label>
                             <input type="number" id="weapon-2-power" class="power-input weapon-power-input" min="0"
                                 max="100" placeholder="-" style="width: 100%;" data-index="2">
                         </div>
@@ -896,16 +896,16 @@
                                 placeholder="0">
                         </div>
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-3-hit-label"
-                                data-index="3" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <label class="weapon-label weapon-hit-label" id="weapon-3-hit-label" data-index="3"
+                                style="color: var(--accent); font-weight: bold;">命中力</label>
                             <input type="number" id="weapon-3-hit" class="power-input" placeholder="0"
                                 style="width: 100%;">
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-3-power-label"
-                                data-index="3" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <label class="weapon-label weapon-power-label" id="weapon-3-power-label" data-index="3"
+                                style="color: var(--accent); font-weight: bold;">威力</label>
                             <input type="number" id="weapon-3-power" class="power-input weapon-power-input" min="0"
                                 max="100" placeholder="-" style="width: 100%;" data-index="3">
                         </div>
@@ -945,16 +945,16 @@
                                 placeholder="0">
                         </div>
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-hit-label" id="weapon-4-hit-label"
-                                data-index="4" style="color: var(--accent); font-weight: bold;">命中力</label>
+                            <label class="weapon-label weapon-hit-label" id="weapon-4-hit-label" data-index="4"
+                                style="color: var(--accent); font-weight: bold;">命中力</label>
                             <input type="number" id="weapon-4-hit" class="power-input" placeholder="0"
                                 style="width: 100%;">
                         </div>
                     </div>
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0;">
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat weapon-power-label" id="weapon-4-power-label"
-                                data-index="4" style="color: var(--accent); font-weight: bold;">威力</label>
+                            <label class="weapon-label weapon-power-label" id="weapon-4-power-label" data-index="4"
+                                style="color: var(--accent); font-weight: bold;">威力</label>
                             <input type="number" id="weapon-4-power" class="power-input weapon-power-input" min="0"
                                 max="100" placeholder="-" style="width: 100%;" data-index="4">
                         </div>
@@ -982,8 +982,8 @@
                 <div class="accordion-content">
                     <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 1fr 1fr 1fr 2fr;">
                         <div class="weapon-input-item">
-                            <label class="weapon-label clickable-stat" id="magic-power-label"
-                                style="color: #a855f7; font-weight: bold;">魔法威力</label>
+                            <label class="weapon-label" id="magic-power-label"
+                                style="color: #a855f7; font-weight: bold; cursor: pointer;">魔法威力</label>
                             <input type="number" id="magic-power-input" class="power-input" min="0" max="100"
                                 placeholder="-" style="width: 100%;">
                         </div>
@@ -1390,7 +1390,10 @@
                 ratingTableContainer.className = 'rating-table-wrapper show';
             }
 
-            function rollDice(type = 'weapon') {
+            function rollDice(arg) {
+                // 引数が文字列でない（Eventオブジェクトなど）場合はデフォルトの 'weapon' を使用
+                let type = (typeof arg === 'string') ? arg : 'weapon';
+
                 // Disable button during animation
                 rollBtn.disabled = true;
                 rollBtn.textContent = '判定中...';
@@ -1624,7 +1627,7 @@
                 }, 600);
             }
 
-            rollBtn.addEventListener('click', rollDice);
+            rollBtn.addEventListener('click', () => rollDice());
 
             function addToHistory(count, rollsStr, totalStr, isAutoFail = false) {
                 const historyItem = document.createElement('div');
