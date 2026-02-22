@@ -1019,7 +1019,7 @@
                 }
             });
 
-            function updateDiceCountDisplay() {
+            function updateDiceCountDisplay(type = 'weapon') {
                 diceCountDisplay.textContent = `${diceCount}d6`;
                 decreaseBtn.disabled = diceCount <= MIN_DICE;
                 increaseBtn.disabled = diceCount >= MAX_DICE;
@@ -1028,7 +1028,7 @@
                 if (powerGroup) {
                     if (diceCount === 2) {
                         powerGroup.className = 'power-input-group active';
-                        updateRatingTable();
+                        updateRatingTable(type);
                     } else {
                         powerGroup.className = 'power-input-group';
                         ratingTableContainer.className = 'rating-table-wrapper';
@@ -1102,6 +1102,9 @@
                 diceContainer.innerHTML = '';
                 totalScoreDisplay.className = 'total-score';
                 totalScoreDisplay.textContent = '';
+
+                // 判定開始時に即座に威力表を更新
+                updateRatingTable(type);
 
                 let total = 0;
                 const results = [];
@@ -1189,15 +1192,11 @@
                             const magicBonus = parseInt(document.getElementById('magic-bonus-input').value, 10) || 0;
                             extraDamageVal = magicBonus;
                             label = '魔法';
-                            // 判定開始時に威力表を更新
-                            updateRatingTable('magic');
                         } else if (wPowerInput.value !== '') {
                             power = parseInt(wPowerInput.value, 10);
                             critValue = parseInt(wCritInput.value, 10) || 10;
                             extraDamageVal = parseInt(document.getElementById('extra-dmg-input').value, 10) || 0;
                             label = document.getElementById('weapon-name').value || '武器';
-                            // 判定開始時に威力表を更新
-                            updateRatingTable('weapon');
                         }
 
                         if (!isNaN(power) && power >= 0 && power <= 100) {
@@ -1336,7 +1335,7 @@
                 }
                 // ダイス数を2d6にセット
                 diceCount = 2;
-                updateDiceCountDisplay();
+                updateDiceCountDisplay('weapon');
                 // ダメージロール実行
                 rollDice('weapon');
             });
@@ -1350,7 +1349,7 @@
                 }
                 // ダイス数を2d6にセット
                 diceCount = 2;
-                updateDiceCountDisplay();
+                updateDiceCountDisplay('magic');
                 // ダメージロール実行
                 rollDice('magic');
             });
