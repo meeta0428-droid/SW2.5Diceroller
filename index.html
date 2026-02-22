@@ -1129,6 +1129,9 @@
                         if (typeof damageTable !== 'undefined') {
                             newDamage = damageTable[power][total - 3];
                         }
+                    } else {
+                        // total === 2 の場合（振足しでの1,1）はダメージ0として処理を継続
+                        newDamage = 0;
                     }
 
                     const accumulatedDamage = currentTotalDamage + newDamage;
