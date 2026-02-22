@@ -1581,9 +1581,21 @@
                         }
                     }
 
-                    const pInput = document.getElementById('power-input');
-                    const mpInput = document.getElementById('magic-power-input');
-                    if (diceCount !== 2 || (pInput.value === '' && mpInput.value === '')) {
+                    let isDamageRoll = false;
+                    if (diceCount === 2) {
+                        const mPowerInput = document.getElementById('magic-power-input');
+                        if (type === 'magic' && mPowerInput && mPowerInput.value !== '') {
+                            isDamageRoll = true;
+                        } else if (type.startsWith('weapon-')) {
+                            const idx = type.split('-')[1];
+                            const wPowerInput = document.getElementById(`weapon-${idx}-power`);
+                            if (wPowerInput && wPowerInput.value !== '') {
+                                isDamageRoll = true;
+                            }
+                        }
+                    }
+
+                    if (!isDamageRoll) {
                         // Regular dice roll with buffs (or 2d6 without power input)
                         total += totalBuff;
                         let buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
