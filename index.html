@@ -1126,6 +1126,7 @@
             const totalScoreDisplay = document.getElementById('total-score');
             const historyContainer = document.getElementById('history-container');
             const jsonUpload = document.getElementById('json-upload');
+            const ratingTableContainer = document.getElementById('rating-table-container');
             const fateBtn = document.getElementById('fate-btn');
             let lastRollData = null; // 運命変転用に直前のロール情報を保持
 
@@ -1813,8 +1814,8 @@
                 totalScoreDisplay.className = 'total-score';
                 totalScoreDisplay.textContent = '';
 
-                const d1 = Math.floor(Math.random() * 6) + 1;
-                const d2 = Math.floor(Math.random() * 6) + 1;
+                const d1 = isFate ? fixedDice[0] : Math.floor(Math.random() * 6) + 1;
+                const d2 = isFate ? fixedDice[1] : Math.floor(Math.random() * 6) + 1;
                 const diceTotal = d1 + d2;
 
                 [d1, d2].forEach(val => {
@@ -1939,8 +1940,8 @@
                 totalScoreDisplay.className = 'total-score';
                 totalScoreDisplay.textContent = '';
 
-                const d1 = Math.floor(Math.random() * 6) + 1;
-                const d2 = Math.floor(Math.random() * 6) + 1;
+                const d1 = isFate ? fixedDice[0] : Math.floor(Math.random() * 6) + 1;
+                const d2 = isFate ? fixedDice[1] : Math.floor(Math.random() * 6) + 1;
                 const diceTotal = d1 + d2;
 
                 // アニメーション用のダイス表示
