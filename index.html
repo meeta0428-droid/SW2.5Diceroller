@@ -1427,7 +1427,7 @@
                 const rowData = damageTable[power];
                 if (!rowData) return;
 
-                let html = `<div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px; text-align: left;">威力表: ${type === 'magic' ? '魔法' : '武器' + weaponIdx} (レート${power})</div>`;
+                let html = `<div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px; text-align: left;">威力表: ${actualType === 'magic' ? '魔法' : '武器' + actualIdx} (レート${power})</div>`;
                 html += '<table class="rating-table"><thead><tr>';
                 // Headers 3 to 12
                 for (let i = 3; i <= 12; i++) {
