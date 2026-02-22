@@ -1391,8 +1391,25 @@
             }
 
             function rollDice(arg) {
-                // 引数が文字列でない（Eventオブジェクトなど）場合はデフォルトの 'weapon' を使用
-                const type = (typeof arg === 'string') ? arg : 'weapon';
+                // 引数が文字列でない（Eventオブジェクトなど）場合はデフォルトの判定を行う
+                let type = (typeof arg === 'string') ? arg : 'weapon';
+
+                // 引数なし（通常ボタン）で2d6の場合、入力がある武器または魔法を自動選択
+                if (type === 'weapon' && diceCount === 2) {
+                    const mPowerInput = document.getElementById('magic-power-input');
+                    const mPowerVal = mPowerInput ? mPowerInput.value : '';
+                    if (mPowerVal !== '') {
+                        type = 'magic';
+                    } else {
+                        for (let i = 1; i <= 4; i++) {
+                            const pInput = document.getElementById(`weapon-${i}-power`);
+                            if (pInput && pInput.value !== '') {
+                                type = `weapon-${i}`;
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 // Disable button during animation
                 rollBtn.disabled = true;
@@ -1429,6 +1446,8 @@
 
                 // 2d6の威力計算用再帰関数
                 function calculateDamage(power, crit, currentDmg, rollCnt, details, extraDice = []) {
+                    if (typeof damageTable === 'undefined' || !damageTable[power]) return { damage: currentDmg, isAutoFail: false, rolls: details, extraDice };
+
                     const d1 = Math.floor(Math.random() * 6) + 1;
                     const d2 = Math.floor(Math.random() * 6) + 1;
                     const rollTotal = d1 + d2;
@@ -1437,12 +1456,9 @@
                     details.push(`${d1},${d2}(=${rollTotal})`);
                     extraDice.push(d1, d2);
 
-                    if (rollTotal === 2 && rollCnt === 0) {
-                        return { damage: '自動失敗', isAutoFail: true, rolls: details, extraDice };
-                    }
-
-                    if (rollTotal > 2 && typeof damageTable !== 'undefined') {
-                        newDmg = damageTable[power][rollTotal - 3];
+                    // 振り足しでの2は自動失敗ではないが、威力表の計算は必要
+                    if (rollTotal > 2) {
+                        newDmg = damageTable[power][rollTotal - 3] || 0;
                     }
 
                     const accumulated = currentDmg + newDmg;
@@ -1480,8 +1496,8 @@
                             const pEl = document.getElementById('magic-power-input');
                             const cEl = document.getElementById('magic-crit-input');
                             const bEl = document.getElementById('magic-bonus-input');
-                            inputVal = pEl.value;
-                            if (inputVal !== '') {
+                            if (pEl && pEl.value !== '') {
+                                inputVal = pEl.value;
                                 power = parseInt(inputVal, 10);
                                 critValue = parseInt(cEl.value, 10) || 10;
                                 if (document.getElementById('magic-no-crit').checked) critValue = 13;
@@ -1494,8 +1510,8 @@
                             const cEl = document.getElementById(`weapon-${idx}-crit`);
                             const nEl = document.getElementById(`weapon-${idx}-name`);
                             const eEl = document.getElementById(`weapon-${idx}-extra-dmg`);
-                            inputVal = pEl.value;
-                            if (pEl && inputVal !== '') {
+                            if (pEl && pEl.value !== '') {
+                                inputVal = pEl.value;
                                 power = parseInt(inputVal, 10);
                                 critValue = parseInt(cEl.value, 10) || 10;
                                 extraDmg = parseInt(eEl.value, 10) || 0;
@@ -1503,8 +1519,8 @@
                             }
                         }
 
-                        // 威力データがあればダメージ計算実行
-                        if (inputVal !== '' && !isNaN(power)) {
+                        // 威力データがあり、かつdamageTableがロードされている場合のみダメージ計算実行
+                        if (inputVal !== '' && !isNaN(power) && typeof damageTable !== 'undefined' && damageTable[power]) {
                             isDamageRollApplied = true;
                             const firstD1 = results[0];
                             const firstD2 = results[1];
@@ -1517,7 +1533,7 @@
                                 displayTotalStr = '自動失敗';
                                 historyRollsStr = rollDetails[0];
                             } else {
-                                let initialDmg = (typeof damageTable !== 'undefined') ? damageTable[power][firstTotal - 3] : 0;
+                                let initialDmg = damageTable[power][firstTotal - 3] || 0;
                                 const combinedBonus = totalBuff + extraDmg;
                                 const modifierText = combinedBonus > 0 ? `+${combinedBonus}` : (combinedBonus < 0 ? `${combinedBonus}` : '');
 
