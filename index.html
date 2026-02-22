@@ -103,19 +103,50 @@
             border: 1px solid var(--border-color);
         }
 
+        .roll-btn-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
         .roll-btn {
             background: linear-gradient(135deg, var(--primary), #8b5cf6);
             color: white;
             border: none;
             border-radius: 12px;
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 15px 10px;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-            width: 100%;
+            flex: 2;
             letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .fate-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            flex: 1;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .fate-btn:disabled {
+            background: #4b5563;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .roll-btn:hover {
@@ -711,7 +742,10 @@
                 style="width:35px; height:35px; font-size:1rem;">＋</button>
         </div>
 
-        <button id="roll-btn" class="roll-btn">ダイスを振る</button>
+        <div class="roll-btn-container">
+            <button id="roll-btn" class="roll-btn">ダイスを振る</button>
+            <button id="fate-btn" class="fate-btn" disabled>運命変転</button>
+        </div>
 
         <div class="results-area">
             <div id="dice-container" class="dice-container">
@@ -1092,7 +1126,8 @@
             const totalScoreDisplay = document.getElementById('total-score');
             const historyContainer = document.getElementById('history-container');
             const jsonUpload = document.getElementById('json-upload');
-            const ratingTableContainer = document.getElementById('rating-table-container');
+            const fateBtn = document.getElementById('fate-btn');
+            let lastRollData = null; // 運命変転用に直前のロール情報を保持
 
             // アコーディオン開閉制御
             window.toggleAccordion = function (id) {
@@ -1444,7 +1479,8 @@
                 ratingTableContainer.className = 'rating-table-wrapper show';
             }
 
-            function rollDice(arg) {
+            function rollDice(arg, fixedDice = null) {
+                const isFate = (fixedDice !== null);
                 // 引数が文字列でない（Eventオブジェクトなど）場合はデフォルトの判定を行う
                 let type = (typeof arg === 'string') ? arg : 'weapon';
 
@@ -1484,6 +1520,9 @@
 
                 // 判定開始時に威力表を更新
                 updateRatingTable(type);
+
+                // 運命変転ボタンを一旦非活性化
+                fateBtn.disabled = true;
 
                 let total = 0;
                 const results = [];
@@ -1528,10 +1567,10 @@
                 // アニメーション後の処理
                 setTimeout(() => {
                     for (let i = 0; i < diceCount; i++) {
-                        const res = Math.floor(Math.random() * 6) + 1;
+                        const res = isFate ? fixedDice[i] : Math.floor(Math.random() * 6) + 1;
                         results.push(res);
                         total += res;
-                        diceElements[i].className = 'die show';
+                        diceElements[i].className = 'die show' + (isFate ? ' fate' : '');
                         diceElements[i].textContent = res;
                     }
 
@@ -1639,16 +1678,47 @@
                     }
 
                     // 結果表示
-                    totalScoreDisplay.textContent = finalResultText;
+                    totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + finalResultText;
                     totalScoreDisplay.className = 'total-score show';
-                    totalScoreDisplay.style.color = isAutoFail ? '#ef4444' : 'var(--accent)';
+                    totalScoreDisplay.style.color = isFate ? '#10b981' : (isAutoFail ? '#ef4444' : 'var(--accent)');
                     totalScoreDisplay.style.fontSize = isAutoFail ? '2rem' : '1.8rem';
 
                     addToHistory(diceCount, historyRollsStr, displayTotalStr, isAutoFail);
                     rollBtn.disabled = false;
                     rollBtn.textContent = 'ダイスを振る';
+
+                    // 2d6ロールの場合のみ運命変転データを保存
+                    if (results.length === 2 && !isFate) {
+                        lastRollData = {
+                            type: 'damage',
+                            rollType: type,
+                            dice: [...results],
+                            diceCount: diceCount
+                        };
+                        fateBtn.disabled = false;
+                    } else {
+                        fateBtn.disabled = true;
+                    }
                 }, 600);
             }
+
+            // 運命変転の実行
+            fateBtn.addEventListener('click', () => {
+                if (!lastRollData) return;
+
+                const flippedDice = lastRollData.dice.map(v => 7 - v);
+                const isFate = true;
+
+                if (lastRollData.type === 'damage') {
+                    rollDice(lastRollData.rollType, flippedDice);
+                } else if (lastRollData.type === 'hit') {
+                    rollHitCheck(lastRollData.label, lastRollData.base, flippedDice);
+                } else if (lastRollData.type === 'check') {
+                    rollCheck(lastRollData.stat, lastRollData.skill, lastRollData.base, flippedDice);
+                }
+
+                fateBtn.disabled = true;
+            });
 
             rollBtn.addEventListener('click', () => rollDice());
 
@@ -1723,9 +1793,11 @@
                 }
             });
 
-            function rollHitCheck(weaponName, hitBase) {
+            function rollHitCheck(weaponName, hitBase, fixedDice = null) {
+                const isFate = (fixedDice !== null);
                 rollBtn.disabled = true;
                 rollBtn.textContent = '判定中...';
+                fateBtn.disabled = true;
 
                 // Calculate total buffs/debuffs
                 const buffInputs = document.querySelectorAll('.buff-value');
@@ -1763,15 +1835,27 @@
                     let detailStr = `${diceTotal}[${d1},${d2}] + ${hitBase}`;
                     if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
 
-                    totalScoreDisplay.textContent = `${weaponName}命中判定: ${resultText}`;
-                    totalScoreDisplay.style.color = isAutoFail ? '#ef4444' : (isAutoSuccess ? '#fbbf24' : 'var(--accent)');
+                    totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + `${weaponName}命中判定: ${resultText}`;
+                    totalScoreDisplay.style.color = isFate ? '#10b981' : (isAutoFail ? '#ef4444' : (isAutoSuccess ? '#fbbf24' : 'var(--accent)'));
                     totalScoreDisplay.style.fontSize = '1.5rem';
                     totalScoreDisplay.className = 'total-score show';
 
-                    addToHistory(2, `${weaponName}命中 ${detailStr}`, resultText, isAutoFail);
+                    addToHistory(2, (isFate ? '運命変転:' : '') + `${weaponName}命中 ${detailStr}`, resultText, isAutoFail);
 
                     rollBtn.disabled = false;
                     rollBtn.textContent = 'ダイスを振る';
+
+                    if (!isFate) {
+                        lastRollData = {
+                            type: 'hit',
+                            label: weaponName,
+                            base: hitBase,
+                            dice: [d1, d2]
+                        };
+                        fateBtn.disabled = false;
+                    } else {
+                        fateBtn.disabled = true;
+                    }
                 }, 600);
             }
 
@@ -1835,9 +1919,11 @@
                 }
             }
 
-            function rollCheck(statName, skillName, baseMod) {
+            function rollCheck(statName, skillName, baseMod, fixedDice = null) {
+                const isFate = (fixedDice !== null);
                 rollBtn.disabled = true;
                 rollBtn.textContent = '判定中...';
+                fateBtn.disabled = true;
 
                 // Calculate total buffs/debuffs
                 const buffInputs = document.querySelectorAll('.buff-value');
@@ -1875,15 +1961,28 @@
                     let detailStr = `${diceTotal}[${d1},${d2}] + ${baseMod}`;
                     if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
 
-                    totalScoreDisplay.textContent = `${statName}/${skillName}判定: ${resultText}`;
-                    totalScoreDisplay.style.color = isAutoFail ? '#ef4444' : 'var(--accent)';
+                    totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + `${statName}/${skillName}判定: ${resultText}`;
+                    totalScoreDisplay.style.color = isFate ? '#10b981' : (isAutoFail ? '#ef4444' : 'var(--accent)');
                     totalScoreDisplay.style.fontSize = '1.5rem';
                     totalScoreDisplay.className = 'total-score show';
 
-                    addToHistory(2, `${statName}/${skillName} ${detailStr}`, resultText, isAutoFail);
+                    addToHistory(2, (isFate ? '運命変転:' : '') + `${statName}/${skillName} ${detailStr}`, resultText, isAutoFail);
 
                     rollBtn.disabled = false;
                     rollBtn.textContent = 'ダイスを振る';
+
+                    if (!isFate) {
+                        lastRollData = {
+                            type: 'check',
+                            stat: statName,
+                            skill: skillName,
+                            base: baseMod,
+                            dice: [d1, d2]
+                        };
+                        fateBtn.disabled = false;
+                    } else {
+                        fateBtn.disabled = true;
+                    }
                 }, 600);
             }
         });
