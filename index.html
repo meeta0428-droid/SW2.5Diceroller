@@ -983,14 +983,11 @@
                     <span>＋</span>
                     <!-- 技能 -->
                     <div style="display: flex; flex-direction: column;">
-                        <span style="font-size: 0.7rem; color: #94a3b8;">回避技能名</span>
-                        <input type="text" id="evasion-skill-name" class="power-input" style="width: 100px;"
-                            placeholder="回避技能など">
-                    </div>
-                    <div style="display: flex; flex-direction: column;">
-                        <span style="font-size: 0.7rem; color: #94a3b8;">レベル</span>
-                        <input type="number" id="evasion-skill-lv" class="power-input" style="width: 50px;"
-                            placeholder="0">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">回避技能</span>
+                        <select id="evasion-skill-select" class="power-input"
+                            style="width: 140px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                            <option value="0">なし (0)</option>
+                        </select>
                     </div>
                     <span>＋</span>
                     <!-- 装備補正 -->
@@ -1319,8 +1316,7 @@
 
             // 回避判定用要素
             const evasionAgiB = document.getElementById('evasion-agi-b');
-            const evasionSkillName = document.getElementById('evasion-skill-name');
-            const evasionSkillLv = document.getElementById('evasion-skill-lv');
+            const evasionSkillSelect = document.getElementById('evasion-skill-select');
             const evasionEquip = document.getElementById('evasion-equip');
             const evasionTotal = document.getElementById('evasion-total');
             const bonusAgi = document.getElementById('bonus-agi');
@@ -1328,25 +1324,77 @@
 
             function updateEvasionTotal() {
                 const agiB = parseInt(bonusAgi.value, 10) || 0;
-                const skillLv = parseInt(evasionSkillLv.value, 10) || 0;
+                const skillLv = evasionSkillSelect ? parseInt(evasionSkillSelect.value, 10) || 0 : 0;
                 const equip = parseInt(evasionEquip.value, 10) || 0;
                 if (evasionAgiB) evasionAgiB.value = agiB;
                 if (evasionTotal) evasionTotal.textContent = agiB + skillLv + equip;
             }
 
-            if (bonusAgi && evasionSkillLv && evasionEquip) {
-                [bonusAgi, evasionSkillLv, evasionEquip].forEach(el => {
+            window.populateEvasionSkillSelect = function () {
+                if (!evasionSkillSelect) return;
+                const currentText = evasionSkillSelect.options[evasionSkillSelect.selectedIndex]?.dataset.name || '';
+
+                evasionSkillSelect.innerHTML = '<option value="0" data-name="なし">なし (0)</option>';
+                for (let i = 1; i <= 5; i++) {
+                    const sName = document.getElementById(`skill-name-${i}`)?.value;
+                    const sLv = document.getElementById(`skill-lv-${i}`)?.value;
+                    if (sName) {
+                        const option = document.createElement('option');
+                        option.value = sLv || 0;
+                        option.dataset.name = sName;
+                        option.textContent = `${sName} (${sLv || 0})`;
+                        evasionSkillSelect.appendChild(option);
+                    }
+                }
+
+                // 選択状態の復元
+                if (currentText && currentText !== 'なし') {
+                    for (let i = 0; i < evasionSkillSelect.options.length; i++) {
+                        if (evasionSkillSelect.options[i].dataset.name === currentText) {
+                            evasionSkillSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+                updateEvasionTotal();
+            };
+
+            // 技能・敏捷B・装備の変更検知
+            if (bonusAgi && evasionEquip && evasionSkillSelect) {
+                [bonusAgi, evasionEquip].forEach(el => {
                     el.addEventListener('input', updateEvasionTotal);
                     el.addEventListener('change', updateEvasionTotal);
                 });
+                evasionSkillSelect.addEventListener('change', updateEvasionTotal);
+            }
+
+            for (let i = 1; i <= 5; i++) {
+                const sNameEl = document.getElementById(`skill-name-${i}`);
+                const sLvEl = document.getElementById(`skill-lv-${i}`);
+                if (sNameEl) {
+                    sNameEl.addEventListener('input', window.populateEvasionSkillSelect);
+                    sNameEl.addEventListener('change', window.populateEvasionSkillSelect);
+                }
+                if (sLvEl) {
+                    sLvEl.addEventListener('input', window.populateEvasionSkillSelect);
+                    sLvEl.addEventListener('change', window.populateEvasionSkillSelect);
+                }
             }
 
             if (rollEvasionBtn) {
                 rollEvasionBtn.addEventListener('click', () => {
-                    const sName = evasionSkillName.value || '技能';
+                    let sName = '技能';
+                    if (evasionSkillSelect && evasionSkillSelect.selectedIndex > 0) {
+                        sName = evasionSkillSelect.options[evasionSkillSelect.selectedIndex].dataset.name;
+                    }
                     const totalEvasion = parseInt(evasionTotal.textContent, 10) || 0;
                     rollCheck('回避', sName, totalEvasion);
                 });
+            }
+
+            // 初期表示で回避プルダウンを生成
+            if (typeof window.populateEvasionSkillSelect === 'function') {
+                window.populateEvasionSkillSelect();
             }
 
             let lastRollData = null;
@@ -1577,11 +1625,11 @@
                         if (data.magicBonusInput !== undefined) document.getElementById('magic-bonus-input').value = data.magicBonusInput;
                         if (data.magicNoCrit !== undefined) document.getElementById('magic-no-crit').checked = data.magicNoCrit;
 
-                        // 回避データ
-                        if (data.evasionSkillName !== undefined) document.getElementById('evasion-skill-name').value = data.evasionSkillName;
-                        if (data.evasionSkillLv !== undefined) document.getElementById('evasion-skill-lv').value = data.evasionSkillLv;
-                        if (data.evasionEquip !== undefined) document.getElementById('evasion-equip').value = data.evasionEquip;
-                        if (typeof updateEvasionTotal === 'function') updateEvasionTotal();
+                        // 回避の装備補正
+                        if (data.evasionEquip !== undefined) {
+                            const evEquip = document.getElementById('evasion-equip');
+                            if (evEquip) evEquip.value = data.evasionEquip;
+                        }
 
                         magicSelect.addEventListener('change', (e) => {
                             if (e.target.value !== '') {
@@ -1622,6 +1670,22 @@
                             } else {
                                 nameInput.value = '';
                                 lvInput.value = '';
+                            }
+                        }
+
+                        // 回避スキルのプルダウンを更新し、保存されていた名前を選択
+                        if (typeof window.populateEvasionSkillSelect === 'function') {
+                            window.populateEvasionSkillSelect();
+                            const evSelect = document.getElementById('evasion-skill-select');
+                            if (evSelect && data.evasionSkillName) {
+                                for (let i = 0; i < evSelect.options.length; i++) {
+                                    if (evSelect.options[i].dataset.name === data.evasionSkillName) {
+                                        evSelect.selectedIndex = i;
+                                        break;
+                                    }
+                                }
+                                const event = new Event('change');
+                                evSelect.dispatchEvent(event);
                             }
                         }
 
@@ -1675,8 +1739,8 @@
                     data.magicNoCrit = document.getElementById('magic-no-crit')?.checked || false;
 
                     // 回避データ
-                    data.evasionSkillName = document.getElementById('evasion-skill-name')?.value || '';
-                    data.evasionSkillLv = document.getElementById('evasion-skill-lv')?.value || '';
+                    const evSelect = document.getElementById('evasion-skill-select');
+                    data.evasionSkillName = (evSelect && evSelect.selectedIndex > 0) ? evSelect.options[evSelect.selectedIndex].dataset.name : '';
                     data.evasionEquip = document.getElementById('evasion-equip')?.value || '';
 
                     // 技能データ
