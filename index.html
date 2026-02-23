@@ -2110,7 +2110,7 @@
                 }
 
                 // 2d6の威力計算用再帰関数
-                function calculateDamage(power, crit, currentDmg, rollCnt, details, extraDice = []) {
+                function calculateDamage(power, crit, currentDmg, rollCnt, details, extraDice = [], originalLabel = '') {
                     if (typeof damageTable === 'undefined' || !damageTable[power]) return { damage: currentDmg, isAutoFail: false, rolls: details, extraDice };
 
                     const d1 = Math.floor(Math.random() * 6) + 1;
@@ -2130,7 +2130,11 @@
 
                     if (rollTotal >= crit && rollTotal > 2) {
                         details[details.length - 1] += ' クリ!';
-                        return calculateDamage(power, crit, accumulated, rollCnt + 1, details, extraDice);
+                        let nextPower = power;
+                        if (originalLabel.includes('首斬り刀')) {
+                            nextPower = Math.min(100, nextPower + 5);
+                        }
+                        return calculateDamage(nextPower, crit, accumulated, rollCnt + 1, details, extraDice, originalLabel);
                     } else {
                         return { damage: accumulated, isAutoFail: false, rolls: details, extraDice };
                     }
@@ -2204,7 +2208,11 @@
 
                                 if (firstTotal >= critValue) {
                                     rollDetails[0] += ' クリ!';
-                                    const critRes = calculateDamage(power, critValue, initialDmg, 1, rollDetails);
+                                    let nextPower = power;
+                                    if (label.includes('首斬り刀')) {
+                                        nextPower = Math.min(100, nextPower + 5);
+                                    }
+                                    const critRes = calculateDamage(nextPower, critValue, initialDmg, 1, rollDetails, [], label);
                                     let finalDmgVal = (typeof critRes.damage === 'number') ? critRes.damage + combinedBonus : critRes.damage;
 
                                     // 振足しダイス表示
