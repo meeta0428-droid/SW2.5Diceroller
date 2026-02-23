@@ -934,31 +934,91 @@
 
         <div class="buff-container">
             <div class="buff-item">
+                <select class="buff-target"
+                    style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                    <option value="all">すべて</option>
+                    <option value="damage">ダメージ</option>
+                    <option value="hit">命中</option>
+                    <option value="dodge">回避</option>
+                    <option value="vit">生命力</option>
+                    <option value="int">知力</option>
+                    <option value="mnd">精神力</option>
+                </select>
                 <input type="text" class="buff-name" placeholder="バフ/デバフ名">
                 <input type="number" class="buff-value" placeholder="値">
                 <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
             </div>
             <div class="buff-item">
+                <select class="buff-target"
+                    style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                    <option value="all">すべて</option>
+                    <option value="damage">ダメージ</option>
+                    <option value="hit">命中</option>
+                    <option value="dodge">回避</option>
+                    <option value="vit">生命力</option>
+                    <option value="int">知力</option>
+                    <option value="mnd">精神力</option>
+                </select>
                 <input type="text" class="buff-name" placeholder="バフ/デバフ名">
                 <input type="number" class="buff-value" placeholder="値">
                 <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
             </div>
             <div class="buff-item">
+                <select class="buff-target"
+                    style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                    <option value="all">すべて</option>
+                    <option value="damage">ダメージ</option>
+                    <option value="hit">命中</option>
+                    <option value="dodge">回避</option>
+                    <option value="vit">生命力</option>
+                    <option value="int">知力</option>
+                    <option value="mnd">精神力</option>
+                </select>
                 <input type="text" class="buff-name" placeholder="バフ/デバフ名">
                 <input type="number" class="buff-value" placeholder="値">
                 <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
             </div>
             <div class="buff-item">
+                <select class="buff-target"
+                    style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                    <option value="all">すべて</option>
+                    <option value="damage">ダメージ</option>
+                    <option value="hit">命中</option>
+                    <option value="dodge">回避</option>
+                    <option value="vit">生命力</option>
+                    <option value="int">知力</option>
+                    <option value="mnd">精神力</option>
+                </select>
                 <input type="text" class="buff-name" placeholder="バフ/デバフ名">
                 <input type="number" class="buff-value" placeholder="値">
                 <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
             </div>
             <div class="buff-item">
+                <select class="buff-target"
+                    style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                    <option value="all">すべて</option>
+                    <option value="damage">ダメージ</option>
+                    <option value="hit">命中</option>
+                    <option value="dodge">回避</option>
+                    <option value="vit">生命力</option>
+                    <option value="int">知力</option>
+                    <option value="mnd">精神力</option>
+                </select>
                 <input type="text" class="buff-name" placeholder="バフ/デバフ名">
                 <input type="number" class="buff-value" placeholder="値">
                 <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
             </div>
             <div class="buff-item">
+                <select class="buff-target"
+                    style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                    <option value="all">すべて</option>
+                    <option value="damage">ダメージ</option>
+                    <option value="hit">命中</option>
+                    <option value="dodge">回避</option>
+                    <option value="vit">生命力</option>
+                    <option value="int">知力</option>
+                    <option value="mnd">精神力</option>
+                </select>
                 <input type="text" class="buff-name" placeholder="バフ/デバフ名">
                 <input type="number" class="buff-value" placeholder="値">
                 <input type="number" class="buff-duration" placeholder="R" min="1" title="持続ラウンド">
@@ -1322,12 +1382,52 @@
             const bonusAgi = document.getElementById('bonus-agi');
             const rollEvasionBtn = document.getElementById('roll-evasion-btn');
 
+            // バフ集計ヘルパー関数
+            function calculateTotalBuff(targetType = 'all') {
+                const buffItems = document.querySelectorAll('.buff-item');
+                let total = 0;
+                buffItems.forEach(item => {
+                    const tSelect = item.querySelector('.buff-target');
+                    const vInput = item.querySelector('.buff-value');
+                    const tVal = tSelect ? tSelect.value : 'all';
+                    const val = parseInt(vInput ? vInput.value : 0, 10);
+                    if (!isNaN(val) && (tVal === 'all' || tVal === targetType)) {
+                        total += val;
+                    }
+                });
+                return total;
+            }
+
+            // バフテキスト取得ヘルパー関数（Discord受信用）
+            function getActiveBuffTexts(targetType = 'all') {
+                const buffItems = document.querySelectorAll('.buff-item');
+                let activeBuffs = [];
+                buffItems.forEach(item => {
+                    const tSelect = item.querySelector('.buff-target');
+                    const nameInput = item.querySelector('.buff-name');
+                    const vInput = item.querySelector('.buff-value');
+                    const durInput = item.querySelector('.buff-duration');
+                    const tVal = tSelect ? tSelect.value : 'all';
+
+                    if (tVal === 'all' || tVal === targetType) {
+                        const name = nameInput ? nameInput.value : '';
+                        const val = vInput ? vInput.value : '';
+                        const dur = durInput ? durInput.value : '';
+                        if (name && val) {
+                            activeBuffs.push(`${name}(${val > 0 ? '+' : ''}${val}) [残${dur}R]`);
+                        }
+                    }
+                });
+                return activeBuffs;
+            }
+
             function updateEvasionTotal() {
                 const agiB = parseInt(bonusAgi.value, 10) || 0;
                 const skillLv = evasionSkillSelect ? parseInt(evasionSkillSelect.value, 10) || 0 : 0;
                 const equip = parseInt(evasionEquip.value, 10) || 0;
+                const buff = calculateTotalBuff('dodge');
                 if (evasionAgiB) evasionAgiB.value = agiB;
-                if (evasionTotal) evasionTotal.textContent = agiB + skillLv + equip;
+                if (evasionTotal) evasionTotal.textContent = agiB + skillLv + equip + buff;
             }
 
             window.populateEvasionSkillSelect = function () {
@@ -1359,7 +1459,7 @@
                 updateEvasionTotal();
             };
 
-            // 技能・敏捷B・装備の変更検知
+            // 技能・敏捷B・装備の変更検知、およびバフの変更時にも回避判定の再計算を行う
             if (bonusAgi && evasionEquip && evasionSkillSelect) {
                 [bonusAgi, evasionEquip].forEach(el => {
                     el.addEventListener('input', updateEvasionTotal);
@@ -1367,6 +1467,10 @@
                 });
                 evasionSkillSelect.addEventListener('change', updateEvasionTotal);
             }
+            document.querySelectorAll('.buff-target, .buff-value').forEach(el => {
+                el.addEventListener('input', updateEvasionTotal);
+                el.addEventListener('change', updateEvasionTotal);
+            });
 
             for (let i = 1; i <= 5; i++) {
                 const sNameEl = document.getElementById(`skill-name-${i}`);
@@ -1423,16 +1527,8 @@
                 const round = roundDisplay.textContent;
 
                 // バフ情報の取得
-                const buffInputs = document.querySelectorAll('.buff-item');
-                let activeBuffs = [];
-                buffInputs.forEach(item => {
-                    const name = item.querySelector('.buff-name').value;
-                    const val = item.querySelector('.buff-value').value;
-                    const dur = item.querySelector('.buff-duration').value;
-                    if (name && val) {
-                        activeBuffs.push(`${name}(${val > 0 ? '+' : ''}${val}) [残${dur}R]`);
-                    }
-                });
+                // バフ情報の取得
+                const activeBuffs = getActiveBuffTexts(rollData.targetType || 'all');
 
                 const content = {
                     username: pcName,
@@ -1977,13 +2073,8 @@
                 rollBtn.disabled = true;
                 rollBtn.textContent = '判定中...';
 
-                // バフ・デバフの合計値を取得
-                const buffInputs = document.querySelectorAll('.buff-value');
-                let totalBuff = 0;
-                buffInputs.forEach(input => {
-                    const val = parseInt(input.value, 10);
-                    if (!isNaN(val)) totalBuff += val;
-                });
+                // バフ・デバフの合計値を取得（ダメージ計算の場合は適用先が"all"または"damage"のみ合算）
+                const totalBuff = calculateTotalBuff('damage');
 
                 // 表示の初期化
                 diceContainer.innerHTML = '';
@@ -2328,7 +2419,8 @@
                         title: `${weaponName}命中判定`,
                         displayTotal: resultText,
                         historyRolls: `${diceTotal}[${d1},${d2}] + ${hitBase}`,
-                        isAutoFail: isAutoFail
+                        isAutoFail: isAutoFail,
+                        targetType: 'hit'
                     };
 
                     addToHistory(2, (isFate ? '運命変転:' : '') + `${weaponName}命中 ${detailStr}`, resultText, isAutoFail);
@@ -2463,10 +2555,12 @@
 
                     const rollResultData = {
                         isFate: isFate,
-                        title: `${statName}/${skillName}判定`,
+                        title: `${statName}判定 (${skillName})`,
                         displayTotal: resultText,
                         historyRolls: `${diceTotal}[${d1},${d2}] + ${baseMod}`,
-                        isAutoFail: isAutoFail
+                        isAutoFail: isAutoFail,
+                        targetType: targetType,
+                        totalBuff: totalBuff
                     };
 
                     addToHistory(2, (isFate ? '運命変転:' : '') + `${statName}/${skillName} ${detailStr}`, resultText, isAutoFail);
