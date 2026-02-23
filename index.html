@@ -937,7 +937,8 @@
                 <select class="buff-target"
                     style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
                     <option value="all">すべて</option>
-                    <option value="damage">ダメージ</option>
+                    <option value="pdmg">物理ダメージ</option>
+                    <option value="mdmg">魔法ダメージ</option>
                     <option value="hit">命中</option>
                     <option value="dodge">回避</option>
                     <option value="vit">生命力</option>
@@ -952,7 +953,8 @@
                 <select class="buff-target"
                     style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
                     <option value="all">すべて</option>
-                    <option value="damage">ダメージ</option>
+                    <option value="pdmg">物理ダメージ</option>
+                    <option value="mdmg">魔法ダメージ</option>
                     <option value="hit">命中</option>
                     <option value="dodge">回避</option>
                     <option value="vit">生命力</option>
@@ -967,7 +969,8 @@
                 <select class="buff-target"
                     style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
                     <option value="all">すべて</option>
-                    <option value="damage">ダメージ</option>
+                    <option value="pdmg">物理ダメージ</option>
+                    <option value="mdmg">魔法ダメージ</option>
                     <option value="hit">命中</option>
                     <option value="dodge">回避</option>
                     <option value="vit">生命力</option>
@@ -982,7 +985,8 @@
                 <select class="buff-target"
                     style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
                     <option value="all">すべて</option>
-                    <option value="damage">ダメージ</option>
+                    <option value="pdmg">物理ダメージ</option>
+                    <option value="mdmg">魔法ダメージ</option>
                     <option value="hit">命中</option>
                     <option value="dodge">回避</option>
                     <option value="vit">生命力</option>
@@ -997,7 +1001,8 @@
                 <select class="buff-target"
                     style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
                     <option value="all">すべて</option>
-                    <option value="damage">ダメージ</option>
+                    <option value="pdmg">物理ダメージ</option>
+                    <option value="mdmg">魔法ダメージ</option>
                     <option value="hit">命中</option>
                     <option value="dodge">回避</option>
                     <option value="vit">生命力</option>
@@ -1012,7 +1017,8 @@
                 <select class="buff-target"
                     style="padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
                     <option value="all">すべて</option>
-                    <option value="damage">ダメージ</option>
+                    <option value="pdmg">物理ダメージ</option>
+                    <option value="mdmg">魔法ダメージ</option>
                     <option value="hit">命中</option>
                     <option value="dodge">回避</option>
                     <option value="vit">生命力</option>
@@ -1311,6 +1317,8 @@
                             <label class="weapon-label" id="magic-power-label"
                                 style="color: #a855f7; font-weight: bold; cursor: pointer;">魔法威力</label>
                             <div class="power-input-wrapper">
+                                <button type="button" id="magic-cast-btn" class="calc-btn" title="魔法行使判定"
+                                    style="background-color: var(--button-bg); color: var(--text-color);">🎲</button>
                                 <input type="number" id="magic-power-input" class="power-input" min="0" max="100"
                                     placeholder="-" style="width: 100%;">
                                 <button type="button" id="magic-calc-btn" class="calc-btn" title="魔法ダメージ算出">🎲</button>
@@ -2073,8 +2081,9 @@
                 rollBtn.disabled = true;
                 rollBtn.textContent = '判定中...';
 
-                // バフ・デバフの合計値を取得（ダメージ計算の場合は適用先が"all"または"damage"のみ合算）
-                const totalBuff = calculateTotalBuff('damage');
+                // バフ・デバフの合計値を取得（ダメージ計算の場合は適用先が"all"または"pdmg"(物理)・"mdmg"(魔法)のみ合算）
+                const targetDmgType = (type === 'magic') ? 'mdmg' : 'pdmg';
+                const totalBuff = calculateTotalBuff(targetDmgType);
 
                 // 表示の初期化
                 diceContainer.innerHTML = '';
@@ -2367,6 +2376,16 @@
                 }
             });
 
+            // 魔法行使判定クリックイベント
+            const magicCastBtn = document.getElementById('magic-cast-btn');
+            if (magicCastBtn) {
+                magicCastBtn.addEventListener('click', () => {
+                    const magicPowerInput = document.getElementById('magic-power-input');
+                    const magicPower = parseInt(magicPowerInput.value, 10) || 0;
+                    rollCheck('魔法行使', '知力', magicPower);
+                });
+            }
+
             function rollHitCheck(weaponName, hitBase, fixedDice = null) {
                 const isFate = (fixedDice !== null);
                 rollBtn.disabled = true;
@@ -2510,7 +2529,7 @@
                 let targetType = 'all';
                 if (statName.includes('回避')) targetType = 'dodge';
                 else if (statName.includes('生命力')) targetType = 'vit';
-                else if (statName.includes('知力')) targetType = 'int';
+                else if (statName.includes('知力') || statName.includes('魔法行使')) targetType = 'int';
                 else if (statName.includes('精神力')) targetType = 'mnd';
                 const totalBuff = calculateTotalBuff(targetType);
                 diceContainer.innerHTML = '';
