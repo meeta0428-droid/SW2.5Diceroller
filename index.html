@@ -1487,12 +1487,12 @@
 
             if (rollEvasionBtn) {
                 rollEvasionBtn.addEventListener('click', () => {
-                    let sName = '技能';
-                    if (evasionSkillSelect && evasionSkillSelect.selectedIndex > 0) {
-                        sName = evasionSkillSelect.options[evasionSkillSelect.selectedIndex].dataset.name;
-                    }
-                    const totalEvasion = parseInt(evasionTotal.textContent, 10) || 0;
-                    rollCheck('回避', sName, totalEvasion);
+                    const sName = evasionSkillSelect ? evasionSkillSelect.options[evasionSkillSelect.selectedIndex]?.dataset.name || '回避' : '回避';
+                    const agiB = parseInt(bonusAgi.value, 10) || 0;
+                    const skillLv = evasionSkillSelect ? parseInt(evasionSkillSelect.value, 10) || 0 : 0;
+                    const equip = parseInt(evasionEquip.value, 10) || 0;
+                    const baseEvasion = agiB + skillLv + equip;
+                    rollCheck('回避', sName, baseEvasion);
                 });
             }
 
@@ -2485,7 +2485,8 @@
                     const skillName = skillNameInput.value || '技能なし';
                     const skillLv = parseInt(skillLvInput.value, 10) || 0;
 
-                    const statName = selectedStat.textContent;
+                    const statNames = { dex: '器用度', agi: '敏捷度', str: '筋力', vit: '生命力', int: '知力', mnd: '精神力' };
+                    const statName = statNames[statKey] || '能力値';
                     const baseMod = bonus + skillLv;
 
                     // 2d6ロールを実行
