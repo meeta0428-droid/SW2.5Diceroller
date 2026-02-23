@@ -2380,8 +2380,8 @@
             const magicCastBtn = document.getElementById('magic-cast-btn');
             if (magicCastBtn) {
                 magicCastBtn.addEventListener('click', () => {
-                    const magicPowerInput = document.getElementById('magic-power-input');
-                    const magicPower = parseInt(magicPowerInput.value, 10) || 0;
+                    const magicBonusInput = document.getElementById('magic-bonus-input');
+                    const magicPower = parseInt(magicBonusInput.value, 10) || 0;
                     rollCheck('魔法行使', '知力', magicPower);
                 });
             }
