@@ -1557,6 +1557,14 @@
                     try {
                         const data = JSON.parse(event.target.result);
 
+                        // キャラクター名の復元
+                        const pcNameInput = document.getElementById('pc-name');
+                        if (pcNameInput && (data.characterName !== undefined || data.pcName !== undefined)) {
+                            pcNameInput.value = data.characterName || data.pcName || '';
+                            // localStorageへの保存をトリガー
+                            pcNameInput.dispatchEvent(new Event('change'));
+                        }
+
                         // 能力値とボーナスの入力
                         if (data.sttDex) document.getElementById('stt-dex').value = data.sttDex;
                         if (data.bonusDex) document.getElementById('bonus-dex').value = data.bonusDex;
@@ -1703,6 +1711,9 @@
             if (jsonDownloadBtn) {
                 jsonDownloadBtn.addEventListener('click', () => {
                     const data = {};
+
+                    // キャラクター名
+                    data.characterName = document.getElementById('pc-name')?.value || '';
 
                     // 能力値とボーナス
                     data.sttDex = document.getElementById('stt-dex').value;
