@@ -558,7 +558,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: auto 1fr 1fr;
+            grid-template-columns: auto auto 1fr 1fr;
             gap: 8px;
             align-items: center;
         }
@@ -589,8 +589,9 @@
 
         .skill-item {
             display: grid;
-            grid-template-columns: 1fr 45px;
+            grid-template-columns: auto 1fr 45px;
             gap: 5px;
+            align-items: center;
         }
 
         .skill-name {
@@ -619,17 +620,29 @@
             cursor: pointer;
             transition: all 0.2s;
             border-radius: 4px;
-            padding: 2px 4px;
+            padding: 4px;
+            text-align: center;
+            user-select: none;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
         }
 
         .clickable-stat:hover,
         .clickable-skill:hover {
             background-color: rgba(99, 102, 241, 0.2);
+            transform: scale(1.1);
         }
 
         .selected-item {
             background-color: var(--primary) !important;
             color: white !important;
+            border-color: var(--primary);
             box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
         }
 
@@ -849,54 +862,66 @@
 
         <div class="status-container">
             <div class="stats-grid">
+                <div class="stats-label">判定</div>
                 <div class="stats-label">能力値</div>
                 <div class="stats-label" style="text-align: center;">値</div>
                 <div class="stats-label" style="text-align: center;">B</div>
 
-                <span class="clickable-stat" data-stat="dex">器用</span>
+                <div class="clickable-stat" data-stat="dex">🔘</div>
+                <span>器用</span>
                 <input type="number" id="stt-dex" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-dex" class="stats-input" placeholder="0">
 
-                <span class="clickable-stat" data-stat="agi">敏捷</span>
+                <div class="clickable-stat" data-stat="agi">🔘</div>
+                <span>敏捷</span>
                 <input type="number" id="stt-agi" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-agi" class="stats-input" placeholder="0">
 
-                <span class="clickable-stat" data-stat="str">筋力</span>
+                <div class="clickable-stat" data-stat="str">🔘</div>
+                <span>筋力</span>
                 <input type="number" id="stt-str" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-str" class="stats-input" placeholder="0">
 
-                <span class="clickable-stat" data-stat="vit">生命</span>
+                <div class="clickable-stat" data-stat="vit">🔘</div>
+                <span>生命</span>
                 <input type="number" id="stt-vit" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-vit" class="stats-input" placeholder="0">
 
-                <span class="clickable-stat" data-stat="int">知力</span>
+                <div class="clickable-stat" data-stat="int">🔘</div>
+                <span>知力</span>
                 <input type="number" id="stt-int" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-int" class="stats-input" placeholder="0">
 
-                <span class="clickable-stat" data-stat="mnd">精神</span>
+                <div class="clickable-stat" data-stat="mnd">🔘</div>
+                <span>精神</span>
                 <input type="number" id="stt-mnd" class="stats-input" placeholder="0">
                 <input type="number" id="bonus-mnd" class="stats-input" placeholder="0">
             </div>
 
             <div class="skills-list">
-                <div class="stats-label">主要技能（クリックで選択）</div>
-                <div class="skill-item clickable-skill" data-skill-id="1">
+                <div class="stats-label">主要技能（判定 ボタンを選択）</div>
+                <div class="skill-item">
+                    <div class="clickable-skill" data-skill-id="1">🔘</div>
                     <input type="text" id="skill-name-1" class="skill-name" placeholder="技能名1">
                     <input type="number" id="skill-lv-1" class="skill-level" placeholder="0">
                 </div>
-                <div class="skill-item clickable-skill" data-skill-id="2">
+                <div class="skill-item">
+                    <div class="clickable-skill" data-skill-id="2">🔘</div>
                     <input type="text" id="skill-name-2" class="skill-name" placeholder="技能名2">
                     <input type="number" id="skill-lv-2" class="skill-level" placeholder="0">
                 </div>
-                <div class="skill-item clickable-skill" data-skill-id="3">
+                <div class="skill-item">
+                    <div class="clickable-skill" data-skill-id="3">🔘</div>
                     <input type="text" id="skill-name-3" class="skill-name" placeholder="技能名3">
                     <input type="number" id="skill-lv-3" class="skill-level" placeholder="0">
                 </div>
-                <div class="skill-item clickable-skill" data-skill-id="4">
+                <div class="skill-item">
+                    <div class="clickable-skill" data-skill-id="4">🔘</div>
                     <input type="text" id="skill-name-4" class="skill-name" placeholder="技能名4">
                     <input type="number" id="skill-lv-4" class="skill-level" placeholder="0">
                 </div>
-                <div class="skill-item clickable-skill" data-skill-id="5">
+                <div class="skill-item">
+                    <div class="clickable-skill" data-skill-id="5">🔘</div>
                     <input type="text" id="skill-name-5" class="skill-name" placeholder="技能名5">
                     <input type="number" id="skill-lv-5" class="skill-level" placeholder="0">
                 </div>
