@@ -2374,14 +2374,7 @@
                 fateBtn.disabled = true;
 
                 // Calculate total buffs/debuffs
-                const buffInputs = document.querySelectorAll('.buff-value');
-                let totalBuff = 0;
-                buffInputs.forEach(input => {
-                    const val = parseInt(input.value, 10);
-                    if (!isNaN(val)) {
-                        totalBuff += val;
-                    }
-                });
+                const totalBuff = calculateTotalBuff('hit');
 
                 diceContainer.innerHTML = '';
                 totalScoreDisplay.className = 'total-score';
@@ -2513,15 +2506,12 @@
                 fateBtn.disabled = true;
 
                 // Calculate total buffs/debuffs
-                const buffInputs = document.querySelectorAll('.buff-value');
-                let totalBuff = 0;
-                buffInputs.forEach(input => {
-                    const val = parseInt(input.value, 10);
-                    if (!isNaN(val)) {
-                        totalBuff += val;
-                    }
-                });
-
+                let targetType = 'all';
+                if (statName.includes('回避')) targetType = 'dodge';
+                else if (statName.includes('生命力')) targetType = 'vit';
+                else if (statName.includes('知力')) targetType = 'int';
+                else if (statName.includes('精神力')) targetType = 'mnd';
+                const totalBuff = calculateTotalBuff(targetType);
                 diceContainer.innerHTML = '';
                 totalScoreDisplay.className = 'total-score';
                 totalScoreDisplay.textContent = '';
