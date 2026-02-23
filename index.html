@@ -881,24 +881,24 @@
             <div class="skills-list">
                 <div class="stats-label">主要技能（クリックで選択）</div>
                 <div class="skill-item clickable-skill" data-skill-id="1">
-                    <input type="text" id="skill-name-1" class="skill-name" placeholder="技能名1" readonly>
-                    <input type="number" id="skill-lv-1" class="skill-level" placeholder="0" readonly>
+                    <input type="text" id="skill-name-1" class="skill-name" placeholder="技能名1">
+                    <input type="number" id="skill-lv-1" class="skill-level" placeholder="0">
                 </div>
                 <div class="skill-item clickable-skill" data-skill-id="2">
-                    <input type="text" id="skill-name-2" class="skill-name" placeholder="技能名2" readonly>
-                    <input type="number" id="skill-lv-2" class="skill-level" placeholder="0" readonly>
+                    <input type="text" id="skill-name-2" class="skill-name" placeholder="技能名2">
+                    <input type="number" id="skill-lv-2" class="skill-level" placeholder="0">
                 </div>
                 <div class="skill-item clickable-skill" data-skill-id="3">
-                    <input type="text" id="skill-name-3" class="skill-name" placeholder="技能名3" readonly>
-                    <input type="number" id="skill-lv-3" class="skill-level" placeholder="0" readonly>
+                    <input type="text" id="skill-name-3" class="skill-name" placeholder="技能名3">
+                    <input type="number" id="skill-lv-3" class="skill-level" placeholder="0">
                 </div>
                 <div class="skill-item clickable-skill" data-skill-id="4">
-                    <input type="text" id="skill-name-4" class="skill-name" placeholder="技能名4" readonly>
-                    <input type="number" id="skill-lv-4" class="skill-level" placeholder="0" readonly>
+                    <input type="text" id="skill-name-4" class="skill-name" placeholder="技能名4">
+                    <input type="number" id="skill-lv-4" class="skill-level" placeholder="0">
                 </div>
                 <div class="skill-item clickable-skill" data-skill-id="5">
-                    <input type="text" id="skill-name-5" class="skill-name" placeholder="技能名5" readonly>
-                    <input type="number" id="skill-lv-5" class="skill-level" placeholder="0" readonly>
+                    <input type="text" id="skill-name-5" class="skill-name" placeholder="技能名5">
+                    <input type="number" id="skill-lv-5" class="skill-level" placeholder="0">
                 </div>
             </div>
         </div>
@@ -2088,7 +2088,10 @@
 
             // 技能クリックイベント
             document.querySelectorAll('.clickable-skill').forEach(el => {
-                el.addEventListener('click', () => {
+                el.addEventListener('click', (e) => {
+                    // input欄がクリックされた場合は選択処理を行わない
+                    if (e.target.tagName.toLowerCase() === 'input') return;
+
                     if (selectedSkill === el) {
                         el.classList.remove('selected-item');
                         selectedSkill = null;
