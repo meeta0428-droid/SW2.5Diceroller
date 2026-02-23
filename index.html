@@ -965,6 +965,52 @@
             </div>
         </div>
 
+        <div id="evasion-container" style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+            <div class="stats-label" style="font-size: 0.9rem; margin-bottom: 5px;">🛡️ 回避力（敏捷B＋技能レベル＋装備）</div>
+            <div
+                style="display: flex; align-items: center; gap: 8px; background-color: var(--surface-color); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <!-- ボタン -->
+                <button type="button" id="roll-evasion-btn" class="calc-btn" title="回避判定"
+                    style="font-size: 1.5rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--primary); cursor: pointer; background-color: transparent;">🎲</button>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; flex-grow: 1; align-items: center;">
+                    <!-- 敏捷B -->
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">敏捷B</span>
+                        <input type="number" id="evasion-agi-b" class="power-input"
+                            style="width: 50px; background-color: var(--bg-color);" readonly value="0">
+                    </div>
+                    <span>＋</span>
+                    <!-- 技能 -->
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">回避技能名</span>
+                        <input type="text" id="evasion-skill-name" class="power-input" style="width: 100px;"
+                            placeholder="回避技能など">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">レベル</span>
+                        <input type="number" id="evasion-skill-lv" class="power-input" style="width: 50px;"
+                            placeholder="0">
+                    </div>
+                    <span>＋</span>
+                    <!-- 装備補正 -->
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">装備・その他</span>
+                        <input type="number" id="evasion-equip" class="power-input" style="width: 60px;"
+                            placeholder="0">
+                    </div>
+                    <span style="font-weight: bold; margin-left: auto;">＝</span>
+                    <!-- 合計回避力 -->
+                    <div
+                        style="display: flex; flex-direction: column; align-items: center; background-color: var(--bg-color); padding: 5px 15px; border-radius: 4px; border: 1px solid var(--border-color);">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">回避力合計</span>
+                        <span id="evasion-total"
+                            style="font-size: 1.5rem; font-weight: bold; color: var(--accent);">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="weapons-container" style="width: 100%; margin-top: 10px;">
             <!-- 武器セット 1-4 -->
             <div class="accordion-item" id="weapon-set-1">
@@ -1271,6 +1317,38 @@
             const webhookEnableCheckbox = document.getElementById('webhook-enable');
             const webhookStatus = document.getElementById('webhook-status');
 
+            // 回避判定用要素
+            const evasionAgiB = document.getElementById('evasion-agi-b');
+            const evasionSkillName = document.getElementById('evasion-skill-name');
+            const evasionSkillLv = document.getElementById('evasion-skill-lv');
+            const evasionEquip = document.getElementById('evasion-equip');
+            const evasionTotal = document.getElementById('evasion-total');
+            const bonusAgi = document.getElementById('bonus-agi');
+            const rollEvasionBtn = document.getElementById('roll-evasion-btn');
+
+            function updateEvasionTotal() {
+                const agiB = parseInt(bonusAgi.value, 10) || 0;
+                const skillLv = parseInt(evasionSkillLv.value, 10) || 0;
+                const equip = parseInt(evasionEquip.value, 10) || 0;
+                if (evasionAgiB) evasionAgiB.value = agiB;
+                if (evasionTotal) evasionTotal.textContent = agiB + skillLv + equip;
+            }
+
+            if (bonusAgi && evasionSkillLv && evasionEquip) {
+                [bonusAgi, evasionSkillLv, evasionEquip].forEach(el => {
+                    el.addEventListener('input', updateEvasionTotal);
+                    el.addEventListener('change', updateEvasionTotal);
+                });
+            }
+
+            if (rollEvasionBtn) {
+                rollEvasionBtn.addEventListener('click', () => {
+                    const sName = evasionSkillName.value || '技能';
+                    const totalEvasion = parseInt(evasionTotal.textContent, 10) || 0;
+                    rollCheck('回避', sName, totalEvasion);
+                });
+            }
+
             let lastRollData = null;
 
             // 設定の読み込み
@@ -1499,6 +1577,12 @@
                         if (data.magicBonusInput !== undefined) document.getElementById('magic-bonus-input').value = data.magicBonusInput;
                         if (data.magicNoCrit !== undefined) document.getElementById('magic-no-crit').checked = data.magicNoCrit;
 
+                        // 回避データ
+                        if (data.evasionSkillName !== undefined) document.getElementById('evasion-skill-name').value = data.evasionSkillName;
+                        if (data.evasionSkillLv !== undefined) document.getElementById('evasion-skill-lv').value = data.evasionSkillLv;
+                        if (data.evasionEquip !== undefined) document.getElementById('evasion-equip').value = data.evasionEquip;
+                        if (typeof updateEvasionTotal === 'function') updateEvasionTotal();
+
                         magicSelect.addEventListener('change', (e) => {
                             if (e.target.value !== '') {
                                 magicBonusInput.value = e.target.value;
@@ -1589,6 +1673,11 @@
                     data.magicCritInput = document.getElementById('magic-crit-input')?.value || '10';
                     data.magicBonusInput = document.getElementById('magic-bonus-input')?.value || '';
                     data.magicNoCrit = document.getElementById('magic-no-crit')?.checked || false;
+
+                    // 回避データ
+                    data.evasionSkillName = document.getElementById('evasion-skill-name')?.value || '';
+                    data.evasionSkillLv = document.getElementById('evasion-skill-lv')?.value || '';
+                    data.evasionEquip = document.getElementById('evasion-equip')?.value || '';
 
                     // 技能データ
                     // skillMapの逆順辞書を作成し、定義済みのキーがあればそれを使う
