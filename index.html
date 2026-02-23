@@ -830,6 +830,10 @@
                 <span>📁 キャラクターJSONを読み込む</span>
                 <input type="file" id="json-upload" accept=".json">
             </label>
+            <button id="json-download" class="file-label"
+                style="margin-left: 10px; border: 1px solid var(--accent); color: var(--accent); background: transparent; cursor: pointer;">
+                <span>💾 現在の状態をJSONで保存</span>
+            </button>
         </div>
 
         <div class="controls">
@@ -1489,6 +1493,12 @@
                             magicBonusInput.value = magicEntries[0][1];
                         }
 
+                        // 個別の手入力魔法データがあれば復元
+                        if (data.magicPowerInput !== undefined) document.getElementById('magic-power-input').value = data.magicPowerInput;
+                        if (data.magicCritInput !== undefined) document.getElementById('magic-crit-input').value = data.magicCritInput;
+                        if (data.magicBonusInput !== undefined) document.getElementById('magic-bonus-input').value = data.magicBonusInput;
+                        if (data.magicNoCrit !== undefined) document.getElementById('magic-no-crit').checked = data.magicNoCrit;
+
                         magicSelect.addEventListener('change', (e) => {
                             if (e.target.value !== '') {
                                 magicBonusInput.value = e.target.value;
@@ -1506,6 +1516,12 @@
                                 if (skillName) {
                                     foundSkills.push({ name: skillName, level: data[key] });
                                 }
+                            }
+                        }
+                        // 手動入力の独自保存データも復元対象に追加
+                        for (let i = 1; i <= 5; i++) {
+                            if (data[`customSkill${i}Name`] && data[`customSkill${i}Lv`]) {
+                                foundSkills.push({ name: data[`customSkill${i}Name`], level: data[`customSkill${i}Lv`] });
                             }
                         }
 
@@ -1533,6 +1549,85 @@
                 };
                 reader.readAsText(file);
             });
+
+            // 現在の状態をJSONで保存
+            const jsonDownloadBtn = document.getElementById('json-download');
+            if (jsonDownloadBtn) {
+                jsonDownloadBtn.addEventListener('click', () => {
+                    const data = {};
+
+                    // 能力値とボーナス
+                    data.sttDex = document.getElementById('stt-dex').value;
+                    data.bonusDex = document.getElementById('bonus-dex').value;
+                    data.sttAgi = document.getElementById('stt-agi').value;
+                    data.bonusAgi = document.getElementById('bonus-agi').value;
+                    data.sttStr = document.getElementById('stt-str').value;
+                    data.bonusStr = document.getElementById('bonus-str').value;
+                    data.sttVit = document.getElementById('stt-vit').value;
+                    data.bonusVit = document.getElementById('bonus-vit').value;
+                    data.sttInt = document.getElementById('stt-int').value;
+                    data.bonusInt = document.getElementById('bonus-int').value;
+                    data.sttMnd = document.getElementById('stt-mnd').value;
+                    data.bonusMnd = document.getElementById('bonus-mnd').value;
+
+                    // 武器データ
+                    for (let i = 1; i <= 4; i++) {
+                        const wName = document.getElementById(`weapon-${i}-name`).value;
+                        if (wName) {
+                            data[`weapon${i}Name`] = wName;
+                            data[`weapon${i}Usage`] = document.getElementById(`weapon-${i}-usage`).value;
+                            data[`weapon${i}Reqd`] = document.getElementById(`weapon-${i}-reqd`).value;
+                            data[`weapon${i}AccTotal`] = document.getElementById(`weapon-${i}-hit`).value;
+                            data[`weapon${i}Rate`] = document.getElementById(`weapon-${i}-power`).value;
+                            data[`weapon${i}Crit`] = document.getElementById(`weapon-${i}-crit`).value;
+                            data[`weapon${i}DmgTotal`] = document.getElementById(`weapon-${i}-extra-dmg`).value;
+                        }
+                    }
+
+                    // 魔法の個別入力データ
+                    data.magicPowerInput = document.getElementById('magic-power-input')?.value || '';
+                    data.magicCritInput = document.getElementById('magic-crit-input')?.value || '10';
+                    data.magicBonusInput = document.getElementById('magic-bonus-input')?.value || '';
+                    data.magicNoCrit = document.getElementById('magic-no-crit')?.checked || false;
+
+                    // 技能データ
+                    // skillMapの逆順辞書を作成し、定義済みのキーがあればそれを使う
+                    const reverseSkillMap = {};
+                    for (let key in skillMap) {
+                        reverseSkillMap[skillMap[key]] = key;
+                    }
+
+                    for (let i = 1; i <= 5; i++) {
+                        const sName = document.getElementById(`skill-name-${i}`).value;
+                        const sLv = document.getElementById(`skill-lv-${i}`).value;
+                        if (sName && sLv !== '') {
+                            const originalKey = reverseSkillMap[sName];
+                            if (originalKey) {
+                                data[`lv${originalKey}`] = parseInt(sLv, 10);
+                            } else {
+                                // 独自技能や手入力の場合はカスタムキーで保存
+                                data[`customSkill${i}Name`] = sName;
+                                data[`customSkill${i}Lv`] = parseInt(sLv, 10);
+                            }
+                        }
+                    }
+
+                    const jsonString = JSON.stringify(data, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${document.getElementById('pc-name').value || 'character'}_data.json`;
+                    document.body.appendChild(a);
+                    a.click();
+
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 0);
+                });
+            }
 
             const roundDecreaseBtn = document.getElementById('round-decrease');
             const roundIncreaseBtn = document.getElementById('round-increase');
