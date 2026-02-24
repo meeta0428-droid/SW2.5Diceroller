@@ -705,10 +705,32 @@
                 font-size: 0.85rem;
             }
 
+            .buff-name {
+                min-width: 0;
+                /* プレースホルダーによる拡張防止 */
+                width: 50px;
+                /* フレックスで伸びるがベース幅を小さく指定 */
+                font-size: 0.8rem;
+                padding: 4px 2px;
+            }
+
+            .buff-name::placeholder {
+                font-size: 0.75rem;
+                content: "名前";
+                /* プレースホルダーを短く見せることはCSSだけでは難しいが、はみ出し防止にはなる */
+            }
+
             .buff-value,
             .buff-duration {
-                width: 40px;
-                /* やや縮小 */
+                width: 35px;
+                /* さらに縮小 */
+                padding: 4px 1px;
+                font-size: 0.8rem;
+            }
+
+            .buff-item {
+                gap: 2px;
+                /* アイテム間の隙間を詰める */
                 padding: 4px 2px;
             }
 
