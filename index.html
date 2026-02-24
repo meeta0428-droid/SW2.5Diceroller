@@ -1440,12 +1440,15 @@
 
             window.populateEvasionSkillSelect = function () {
                 if (!evasionSkillSelect) return;
-                const currentText = evasionSkillSelect.options[evasionSkillSelect.selectedIndex]?.dataset.name || '';
+                const selectedOpt = evasionSkillSelect.options[evasionSkillSelect.selectedIndex];
+                const currentText = selectedOpt && selectedOpt.dataset ? selectedOpt.dataset.name : '';
 
                 evasionSkillSelect.innerHTML = '<option value="0" data-name="なし">なし (0)</option>';
                 for (let i = 1; i <= 5; i++) {
-                    const sName = document.getElementById(`skill-name-${i}`)?.value;
-                    const sLv = document.getElementById(`skill-lv-${i}`)?.value;
+                    const nameEl = document.getElementById(`skill-name-${i}`);
+                    const lvEl = document.getElementById(`skill-lv-${i}`);
+                    const sName = nameEl ? nameEl.value : '';
+                    const sLv = lvEl ? lvEl.value : '';
                     if (sName) {
                         const option = document.createElement('option');
                         option.value = sLv || 0;
@@ -1495,7 +1498,8 @@
 
             if (rollEvasionBtn) {
                 rollEvasionBtn.addEventListener('click', () => {
-                    const sName = evasionSkillSelect ? evasionSkillSelect.options[evasionSkillSelect.selectedIndex]?.dataset.name || '回避' : '回避';
+                    const selectedOpt = evasionSkillSelect ? evasionSkillSelect.options[evasionSkillSelect.selectedIndex] : null;
+                    const sName = (selectedOpt && selectedOpt.dataset) ? (selectedOpt.dataset.name || '回避') : '回避';
                     const agiB = parseInt(bonusAgi.value, 10) || 0;
                     const skillLv = evasionSkillSelect ? parseInt(evasionSkillSelect.value, 10) || 0 : 0;
                     const equip = parseInt(evasionEquip.value, 10) || 0;
@@ -1817,7 +1821,8 @@
                     const data = {};
 
                     // キャラクター名
-                    data.characterName = document.getElementById('pc-name')?.value || '';
+                    const pcNameInputSafe = document.getElementById('pc-name');
+                    data.characterName = pcNameInputSafe ? pcNameInputSafe.value : '';
 
                     // 能力値とボーナス
                     data.sttDex = document.getElementById('stt-dex').value;
@@ -1848,15 +1853,21 @@
                     }
 
                     // 魔法の個別入力データ
-                    data.magicPowerInput = document.getElementById('magic-power-input')?.value || '';
-                    data.magicCritInput = document.getElementById('magic-crit-input')?.value || '10';
-                    data.magicBonusInput = document.getElementById('magic-bonus-input')?.value || '';
-                    data.magicNoCrit = document.getElementById('magic-no-crit')?.checked || false;
+                    const mPowerInputSafe = document.getElementById('magic-power-input');
+                    const mCritInputSafe = document.getElementById('magic-crit-input');
+                    const mBonusInputSafe = document.getElementById('magic-bonus-input');
+                    const mNoCritSafe = document.getElementById('magic-no-crit');
+
+                    data.magicPowerInput = mPowerInputSafe ? mPowerInputSafe.value : '';
+                    data.magicCritInput = mCritInputSafe ? mCritInputSafe.value : '10';
+                    data.magicBonusInput = mBonusInputSafe ? mBonusInputSafe.value : '';
+                    data.magicNoCrit = mNoCritSafe ? mNoCritSafe.checked : false;
 
                     // 回避データ
                     const evSelect = document.getElementById('evasion-skill-select');
                     data.evasionSkillName = (evSelect && evSelect.selectedIndex > 0) ? evSelect.options[evSelect.selectedIndex].dataset.name : '';
-                    data.evasionEquip = document.getElementById('evasion-equip')?.value || '';
+                    const evasionEquipSafe = document.getElementById('evasion-equip');
+                    data.evasionEquip = evasionEquipSafe ? evasionEquipSafe.value : '';
 
                     // 技能データ
                     // skillMapの逆順辞書を作成し、定義済みのキーがあればそれを使う
