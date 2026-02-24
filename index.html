@@ -516,6 +516,14 @@
             font-size: 0.9rem;
             padding: 5px;
             outline: none;
+            min-width: 50px;
+            /* スマホで縮小できるように追加 */
+        }
+
+        .buff-target {
+            max-width: 110px;
+            /* スマホで長くなりすぎないように制限 */
+            text-overflow: ellipsis;
         }
 
         .buff-name::placeholder {
@@ -689,6 +697,19 @@
 
             .buff-container {
                 grid-template-columns: 1fr;
+            }
+
+            .buff-target {
+                max-width: 85px;
+                /* スマホ時はさらに小さく */
+                font-size: 0.85rem;
+            }
+
+            .buff-value,
+            .buff-duration {
+                width: 40px;
+                /* やや縮小 */
+                padding: 4px 2px;
             }
 
             h1 {
