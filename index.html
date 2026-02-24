@@ -2534,12 +2534,12 @@
                 fateBtn.disabled = true;
 
                 // Calculate total buffs/debuffs
-                let targetType = 'all';
-                if (statName.includes('回避')) targetType = 'dodge';
-                else if (statName.includes('生命力')) targetType = 'vit';
-                else if (statName.includes('知力') || statName.includes('魔法行使')) targetType = 'int';
-                else if (statName.includes('精神力')) targetType = 'mnd';
-                const totalBuff = calculateTotalBuff(targetType);
+                let rollTargetType = 'all';
+                if (statName.includes('回避')) rollTargetType = 'dodge';
+                else if (statName.includes('生命力')) rollTargetType = 'vit';
+                else if (statName.includes('知力') || statName.includes('魔法行使')) rollTargetType = 'int';
+                else if (statName.includes('精神力')) rollTargetType = 'mnd';
+                const totalBuff = calculateTotalBuff(rollTargetType);
                 diceContainer.innerHTML = '';
                 totalScoreDisplay.className = 'total-score';
                 totalScoreDisplay.textContent = '';
@@ -2577,7 +2577,7 @@
                         displayTotal: resultText,
                         historyRolls: `${diceTotal}[${d1},${d2}] + ${baseMod}`,
                         isAutoFail: isAutoFail,
-                        targetType: targetType,
+                        targetType: rollTargetType,
                         totalBuff: totalBuff
                     };
 
