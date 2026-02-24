@@ -852,9 +852,15 @@
                 style="width:35px; height:35px; font-size:1rem;">＋</button>
         </div>
 
-        <div class="roll-btn-container">
+        <div class="roll-btn-container"
+            style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
             <button id="roll-btn" class="roll-btn">ダイスを振る</button>
             <button id="fate-btn" class="fate-btn" disabled>運命変転</button>
+            <label
+                style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: var(--text-color); font-size: 0.9rem; margin-top: 5px; width: 100%; justify-content: center;">
+                <input type="checkbox" id="dice-only-checkbox" style="width: 16px; height: 16px;">
+                出目のみ出力
+            </label>
         </div>
 
         <div class="results-area">
@@ -2161,14 +2167,22 @@
                         diceElements[i].textContent = res;
                     }
 
+                    const isDiceOnly = document.getElementById('dice-only-checkbox') && document.getElementById('dice-only-checkbox').checked;
+
                     let finalResultText = `合計: ${total}`;
                     let isAutoFail = false;
                     let displayTotalStr = total.toString();
                     let historyRollsStr = results.join(', ');
                     let isDamageRollApplied = false;
 
-                    // 威力計算が必要な場合
-                    if (diceCount === 2) {
+                    // 出目のみ出力ONの場合は威力計算などをすべてスキップ
+                    if (isDiceOnly) {
+                        finalResultText = `出目合計: ${total}`;
+                        displayTotalStr = total.toString();
+                        historyRollsStr = results.join(', ');
+                    }
+                    // 威力計算が必要な場合（出目のみ出力がOFFで2d6のとき）
+                    else if (diceCount === 2) {
                         let power, critValue, extraDmg = 0, label = '判定';
                         let inputVal = '';
 
@@ -2259,8 +2273,8 @@
                         }
                     }
 
-                    // 威力判定でない、または計算されなかった場合
-                    if (!isDamageRollApplied) {
+                    // 威力判定でない、または計算されなかった場合（出目のみの場合はここを通るがtotalBuffは加算しないよう制御）
+                    if (!isDamageRollApplied && !isDiceOnly) {
                         total += totalBuff;
                         const buffText = totalBuff > 0 ? `+${totalBuff}` : (totalBuff < 0 ? `${totalBuff}` : '');
                         finalResultText = `合計: ${total}${buffText ? ' (バフ' + buffText + ')' : ''}`;
@@ -2271,15 +2285,15 @@
                     // 結果表示
                     totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + finalResultText;
                     totalScoreDisplay.className = 'total-score show';
-                    totalScoreDisplay.style.color = isFate ? '#10b981' : (isAutoFail ? '#ef4444' : 'var(--accent)');
-                    totalScoreDisplay.style.fontSize = isAutoFail ? '2rem' : '1.8rem';
+                    totalScoreDisplay.style.color = isFate ? '#10b981' : ((isAutoFail && !isDiceOnly) ? '#ef4444' : 'var(--accent)');
+                    totalScoreDisplay.style.fontSize = (isAutoFail && !isDiceOnly) ? '2rem' : '1.8rem';
 
                     const rollResultData = {
                         isFate: isFate,
-                        title: isDamageRollApplied ? finalResultText : "判定",
+                        title: isDiceOnly ? "ダイスロール" : (isDamageRollApplied ? finalResultText : "判定"),
                         displayTotal: displayTotalStr,
                         historyRolls: historyRollsStr,
-                        isAutoFail: isAutoFail
+                        isAutoFail: isDiceOnly ? false : isAutoFail
                     };
 
                     addToHistory(diceCount, historyRollsStr, displayTotalStr, isAutoFail);
@@ -2432,29 +2446,45 @@
                 setTimeout(() => {
                     document.querySelectorAll('.die').forEach(el => el.classList.remove('rolling'));
 
+                    const isDiceOnly = document.getElementById('dice-only-checkbox') && document.getElementById('dice-only-checkbox').checked;
+
                     let isAutoFail = (diceTotal === 2);
                     let isAutoSuccess = (diceTotal === 12);
-                    let finalResult = isAutoFail ? 0 : diceTotal + hitBase + totalBuff;
-                    let resultText = isAutoFail ? '自動失敗' : (isAutoSuccess ? `自動成功 (${finalResult})` : finalResult);
 
-                    let detailStr = `${diceTotal}[${d1},${d2}] + ${hitBase}`;
-                    if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+                    let finalResult, resultText, detailStr, rollTitle, textColor;
 
-                    totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + `${weaponName}命中判定: ${resultText}`;
-                    totalScoreDisplay.style.color = isFate ? '#10b981' : (isAutoFail ? '#ef4444' : (isAutoSuccess ? '#fbbf24' : 'var(--accent)'));
+                    if (isDiceOnly) {
+                        finalResult = diceTotal;
+                        resultText = diceTotal;
+                        detailStr = `${diceTotal}[${d1},${d2}]`;
+                        rollTitle = "ダイスロール";
+                        textColor = 'var(--text-color)';
+                        isAutoFail = false;
+                        isAutoSuccess = false;
+                    } else {
+                        finalResult = isAutoFail ? 0 : diceTotal + hitBase + totalBuff;
+                        resultText = isAutoFail ? '自動失敗' : (isAutoSuccess ? `自動成功 (${finalResult})` : finalResult);
+                        detailStr = `${diceTotal}[${d1},${d2}] + ${hitBase}`;
+                        if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+                        rollTitle = `${weaponName}命中判定`;
+                        textColor = isAutoFail ? '#ef4444' : (isAutoSuccess ? '#fbbf24' : 'var(--accent)');
+                    }
+
+                    totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + (isDiceOnly ? `出目合計: ${resultText}` : `${rollTitle}: ${resultText}`);
+                    totalScoreDisplay.style.color = isFate ? '#10b981' : textColor;
                     totalScoreDisplay.style.fontSize = '1.5rem';
                     totalScoreDisplay.className = 'total-score show';
 
                     const rollResultData = {
                         isFate: isFate,
-                        title: `${weaponName}命中判定`,
+                        title: rollTitle,
                         displayTotal: resultText,
-                        historyRolls: `${diceTotal}[${d1},${d2}] + ${hitBase}`,
+                        historyRolls: detailStr,
                         isAutoFail: isAutoFail,
-                        targetType: 'hit'
+                        targetType: isDiceOnly ? 'none' : 'hit'
                     };
 
-                    addToHistory(2, (isFate ? '運命変転:' : '') + `${weaponName}命中 ${detailStr}`, resultText, isAutoFail);
+                    addToHistory(2, (isFate ? '運命変転:' : '') + (isDiceOnly ? detailStr : `${weaponName}命中 ${detailStr}`), resultText, isAutoFail);
                     sendToDiscord(rollResultData);
 
                     rollBtn.disabled = false;
@@ -2570,29 +2600,43 @@
                 setTimeout(() => {
                     document.querySelectorAll('.die').forEach(el => el.classList.remove('rolling'));
 
+                    const isDiceOnly = document.getElementById('dice-only-checkbox') && document.getElementById('dice-only-checkbox').checked;
+
                     let isAutoFail = (diceTotal === 2);
-                    let finalResult = isAutoFail ? 0 : diceTotal + baseMod + totalBuff;
-                    let resultText = isAutoFail ? '自動失敗' : finalResult;
+                    let finalResult, resultText, detailStr, rollTitle, textColor;
 
-                    let detailStr = `${diceTotal}[${d1},${d2}] + ${baseMod}`;
-                    if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+                    if (isDiceOnly) {
+                        finalResult = diceTotal;
+                        resultText = diceTotal;
+                        detailStr = `${diceTotal}[${d1},${d2}]`;
+                        rollTitle = "ダイスロール";
+                        textColor = 'var(--text-color)';
+                        isAutoFail = false;
+                    } else {
+                        finalResult = isAutoFail ? 0 : diceTotal + baseMod + totalBuff;
+                        resultText = isAutoFail ? '自動失敗' : finalResult;
+                        detailStr = `${diceTotal}[${d1},${d2}] + ${baseMod}`;
+                        if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+                        rollTitle = `${statName}判定 (${skillName})`;
+                        textColor = isAutoFail ? '#ef4444' : 'var(--accent)';
+                    }
 
-                    totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + `${statName}/${skillName}判定: ${resultText}`;
-                    totalScoreDisplay.style.color = isFate ? '#10b981' : (isAutoFail ? '#ef4444' : 'var(--accent)');
+                    totalScoreDisplay.textContent = (isFate ? '【運命変転】' : '') + (isDiceOnly ? `出目合計: ${resultText}` : `${statName}/${skillName}判定: ${resultText}`);
+                    totalScoreDisplay.style.color = isFate ? '#10b981' : textColor;
                     totalScoreDisplay.style.fontSize = '1.5rem';
                     totalScoreDisplay.className = 'total-score show';
 
                     const rollResultData = {
                         isFate: isFate,
-                        title: `${statName}判定 (${skillName})`,
+                        title: rollTitle,
                         displayTotal: resultText,
-                        historyRolls: `${diceTotal}[${d1},${d2}] + ${baseMod}`,
+                        historyRolls: isDiceOnly ? detailStr : `${diceTotal}[${d1},${d2}] + ${baseMod}`,
                         isAutoFail: isAutoFail,
-                        targetType: rollTargetType,
-                        totalBuff: totalBuff
+                        targetType: isDiceOnly ? 'none' : rollTargetType,
+                        totalBuff: isDiceOnly ? 0 : totalBuff
                     };
 
-                    addToHistory(2, (isFate ? '運命変転:' : '') + `${statName}/${skillName} ${detailStr}`, resultText, isAutoFail);
+                    addToHistory(2, (isFate ? '運命変転:' : '') + (isDiceOnly ? detailStr : `${statName}/${skillName} ${detailStr}`), resultText, isAutoFail);
                     sendToDiscord(rollResultData);
 
                     rollBtn.disabled = false;
