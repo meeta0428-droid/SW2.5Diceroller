@@ -1373,13 +1373,20 @@
                     魔法
                 </div>
                 <div class="accordion-content">
-                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 2fr 1fr 1fr 2fr;">
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 10px; grid-template-columns: 1fr;">
+                        <div class="weapon-input-item"
+                            style="flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px;">
+                            <label class="weapon-label"
+                                style="color: #a855f7; font-weight: bold; margin-bottom: 0;">魔法行使</label>
+                            <button type="button" id="magic-cast-btn" class="calc-btn" title="魔法行使判定"
+                                style="background-color: var(--button-bg); color: var(--text-color);">🎲</button>
+                        </div>
+                    </div>
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 10px; grid-template-columns: 1fr 1fr;">
                         <div class="weapon-input-item">
                             <label class="weapon-label" id="magic-power-label"
                                 style="color: #a855f7; font-weight: bold; cursor: pointer;">魔法威力</label>
                             <div class="power-input-wrapper">
-                                <button type="button" id="magic-cast-btn" class="calc-btn" title="魔法行使判定"
-                                    style="background-color: var(--button-bg); color: var(--text-color);">🎲</button>
                                 <input type="number" id="magic-power-input" class="power-input" min="0" max="100"
                                     placeholder="-" style="width: 100%;">
                                 <button type="button" id="magic-calc-btn" class="calc-btn" title="魔法ダメージ算出">🎲</button>
@@ -1398,6 +1405,8 @@
                             <input type="number" id="magic-crit-input" class="power-input" min="3" max="12" value="10"
                                 style="width: 100%;">
                         </div>
+                    </div>
+                    <div class="weapon-inputs-grid-2" style="margin-bottom: 0; grid-template-columns: 1fr 1fr;">
                         <div class="weapon-input-item">
                             <label class="weapon-label">魔力</label>
                             <input type="number" id="magic-bonus-input" class="power-input" placeholder="0"
