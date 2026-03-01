@@ -1618,8 +1618,9 @@
                 const skillLv = evasionSkillSelect ? parseInt(evasionSkillSelect.value, 10) || 0 : 0;
                 const equip = parseInt(evasionEquip.value, 10) || 0;
                 const buff = calculateTotalBuff('dodge');
+                const agiBuff = calculateTotalBuff('agi');
                 if (evasionAgiB) evasionAgiB.value = agiB;
-                if (evasionTotal) evasionTotal.textContent = agiB + skillLv + equip + buff;
+                if (evasionTotal) evasionTotal.textContent = agiB + skillLv + equip + buff + agiBuff;
             }
 
             window.populateEvasionSkillSelect = function () {
@@ -2769,6 +2770,7 @@
 
                 // Calculate total buffs/debuffs
                 const totalBuff = calculateTotalBuff('hit');
+                const dexBuff = calculateTotalBuff('dex');
 
                 diceContainer.innerHTML = '';
                 totalScoreDisplay.className = 'total-score';
@@ -2804,10 +2806,11 @@
                         isAutoFail = false;
                         isAutoSuccess = false;
                     } else {
-                        finalResult = isAutoFail ? 0 : diceTotal + hitBase + totalBuff;
+                        finalResult = isAutoFail ? 0 : diceTotal + hitBase + totalBuff + dexBuff;
                         resultText = isAutoFail ? '自動失敗' : (isAutoSuccess ? `自動成功 (${finalResult})` : finalResult);
                         detailStr = `${diceTotal}[${d1},${d2}] + ${hitBase}`;
                         if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+                        if (dexBuff !== 0) detailStr += (dexBuff > 0 ? ` + ${dexBuff}(器用)` : ` - ${Math.abs(dexBuff)}(器用)`);
                         rollTitle = `${weaponName}命中判定`;
                         textColor = isAutoFail ? '#ef4444' : (isAutoSuccess ? '#fbbf24' : 'var(--accent)');
                     }
@@ -2923,6 +2926,11 @@
                 else if (statName.includes('知力') || statName.includes('魔法行使')) rollTargetType = 'int';
                 else if (statName.includes('精神力')) rollTargetType = 'mnd';
                 const totalBuff = calculateTotalBuff(rollTargetType);
+
+                // 器用・敏捷バフも加算
+                let statBuff = 0;
+                if (rollTargetType === 'dodge') statBuff = calculateTotalBuff('agi');
+
                 diceContainer.innerHTML = '';
                 totalScoreDisplay.className = 'total-score';
                 totalScoreDisplay.textContent = '';
@@ -2955,10 +2963,11 @@
                         textColor = 'var(--text-color)';
                         isAutoFail = false;
                     } else {
-                        finalResult = isAutoFail ? 0 : diceTotal + baseMod + totalBuff;
+                        finalResult = isAutoFail ? 0 : diceTotal + baseMod + totalBuff + statBuff;
                         resultText = isAutoFail ? '自動失敗' : finalResult;
                         detailStr = `${diceTotal}[${d1},${d2}] + ${baseMod}`;
                         if (totalBuff !== 0) detailStr += (totalBuff > 0 ? ` + ${totalBuff}` : ` - ${Math.abs(totalBuff)}`);
+                        if (statBuff !== 0) detailStr += (statBuff > 0 ? ` + ${statBuff}(能力値)` : ` - ${Math.abs(statBuff)}(能力値)`);
                         rollTitle = `${statName}判定 (${skillName})`;
                         textColor = isAutoFail ? '#ef4444' : 'var(--accent)';
                     }
