@@ -1745,7 +1745,6 @@
                 // ラウンド変更のリスナー
                 roundRef.on('value', (snapshot) => {
                     const newRound = snapshot.val();
-                    console.log('[Firebase Debug] on value received:', newRound);
                     syncStatus.textContent = "✅ 接続済み";
                     syncStatus.style.color = "var(--accent)";
                     if (newRound !== null) {
@@ -1779,7 +1778,6 @@
                 saveSettings();
                 // GMモードになったら、即座に現在のラウンドを送信
                 if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
-                    console.log('[Firebase Debug] GMモードON、現在のラウンドを送信:', roundCount);
                     db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
                 }
             });
@@ -2234,19 +2232,9 @@
                 roundDisplay.textContent = roundCount;
                 roundDecreaseBtn.disabled = roundCount <= 1;
 
-                // デバッグログ
-                console.log('[Firebase Debug] roundIncreaseBtn clicked. roundCount:', roundCount);
-                console.log('[Firebase Debug] gmModeCheckbox:', gmModeCheckbox, 'checked:', gmModeCheckbox ? gmModeCheckbox.checked : 'N/A');
-                console.log('[Firebase Debug] roomIdInput:', roomIdInput, 'value:', roomIdInput ? roomIdInput.value : 'N/A');
-
                 // GMモードが有効ならFirebaseに送信
                 if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
-                    console.log('[Firebase Debug] ▶ Firebase SET called with roundCount:', roundCount);
-                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount)
-                        .then(() => console.log('[Firebase Debug] ✅ Firebase SET success'))
-                        .catch((err) => console.error('[Firebase Debug] ❌ Firebase SET error:', err));
-                } else {
-                    console.log('[Firebase Debug] ⏭ Firebase SET skipped. GM checked:', gmModeCheckbox.checked, 'roomId:', roomIdInput.value.trim());
+                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
                 }
 
                 // バフ・デバフの持続ラウンドを減算処理
