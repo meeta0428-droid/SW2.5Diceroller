@@ -1757,7 +1757,8 @@
                             roundCount = newRound;
                             roundDecreaseBtn.disabled = roundCount <= 1;
 
-                            // ラウンドが増えた場合、バフ持続ラウンドを減算（非GM側）
+                            // 非GM側でラウンドが増えた場合、バフ持続ラウンドを減算
+                            // （GM側はボタンクリック時に直接処理済み）
                             if (!gmModeCheckbox.checked && newRound > oldRound) {
                                 for (let i = 0; i < (newRound - oldRound); i++) {
                                     decrementBuffDurations();
@@ -2268,7 +2269,7 @@
                     db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
                 }
 
-                // バフ・デバフの持続ラウンドを減算
+                // バフ・デバフの持続ラウンドを減算（常に実行）
                 decrementBuffDurations();
             });
             roundDecreaseBtn.disabled = true; // 初回は1ラウンドなのでマイナスボタンを無効化
