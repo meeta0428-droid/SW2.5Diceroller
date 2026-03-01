@@ -1753,8 +1753,16 @@
 
                         // DBと同期した場合に、状態も更新する
                         if (roundCount !== newRound) {
+                            const oldRound = roundCount;
                             roundCount = newRound;
                             roundDecreaseBtn.disabled = roundCount <= 1;
+
+                            // ラウンドが増えた場合、バフ持続ラウンドを減算（非GM側）
+                            if (!gmModeCheckbox.checked && newRound > oldRound) {
+                                for (let i = 0; i < (newRound - oldRound); i++) {
+                                    decrementBuffDurations();
+                                }
+                            }
                         }
                     }
                 }, (error) => {
@@ -2227,17 +2235,8 @@
                 }
             });
 
-            roundIncreaseBtn.addEventListener('click', () => {
-                roundCount++;
-                roundDisplay.textContent = roundCount;
-                roundDecreaseBtn.disabled = roundCount <= 1;
-
-                // GMモードが有効ならFirebaseに送信
-                if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
-                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
-                }
-
-                // バフ・デバフの持続ラウンドを減算処理
+            // バフ・デバフの持続ラウンド減算処理（共通関数）
+            function decrementBuffDurations() {
                 const buffItems = document.querySelectorAll('.buff-item');
                 buffItems.forEach(item => {
                     const durationInput = item.querySelector('.buff-duration');
@@ -2257,6 +2256,20 @@
                         }
                     }
                 });
+            }
+
+            roundIncreaseBtn.addEventListener('click', () => {
+                roundCount++;
+                roundDisplay.textContent = roundCount;
+                roundDecreaseBtn.disabled = roundCount <= 1;
+
+                // GMモードが有効ならFirebaseに送信
+                if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
+                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
+                }
+
+                // バフ・デバフの持続ラウンドを減算
+                decrementBuffDurations();
             });
             roundDecreaseBtn.disabled = true; // 初回は1ラウンドなのでマイナスボタンを無効化
 
