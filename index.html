@@ -854,6 +854,26 @@
         </div>
 
         <div class="setting-section">
+            <div class="setting-title">🔄 ラウンド同期設定 (Firebase)</div>
+            <div class="webhook-input-group">
+                <label style="font-size: 0.85rem;">ルームID（同じIDの人と同期します）</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="room-id" class="webhook-url-input" placeholder="例: room-alpha-123"
+                        style="flex: 1;">
+                </div>
+
+                <div class="webhook-controls">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="gm-mode-enable" style="cursor: pointer; width: 16px; height: 16px;">
+                        <span style="color: #fbbf24; font-weight: bold;">GMモード (ラウンド数を操作＆送信)</span>
+                    </label>
+                </div>
+                <div id="sync-status" style="font-size: 0.75rem; color: #94a3b8; text-align: right; margin-top: 4px;">
+                    未接続</div>
+            </div>
+        </div>
+
+        <div class="setting-section">
             <div class="setting-title">
                 <span>🔗 Discord連携設定</span>
             </div>
@@ -1482,8 +1502,26 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script src="damage_table.js"></script>
     <script>
+        // Firebase設定情報の読み込み
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGr9n3ltRpc8_9ElOgWWTiMY147bsJz0w",
+            authDomain: "sw25-diceroller.firebaseapp.com",
+            databaseURL: "https://sw25-diceroller-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sw25-diceroller",
+            storageBucket: "sw25-diceroller.firebasestorage.app",
+            messagingSenderId: "921930657422",
+            appId: "1:921930657422:web:4f55047b28e68a4138a3df"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         document.addEventListener('DOMContentLoaded', () => {
             const decreaseBtn = document.getElementById('decrease-btn');
             const increaseBtn = document.getElementById('increase-btn');
@@ -1644,11 +1682,77 @@
             webhookUrlInput.value = localStorage.getItem('sw25_webhook_url') || '';
             webhookEnableCheckbox.checked = localStorage.getItem('sw25_webhook_enable') === 'true';
 
+            // Firebase設定の読み込みとUI
+            const roomIdInput = document.getElementById('room-id');
+            const gmModeCheckbox = document.getElementById('gm-mode-enable');
+            const syncStatus = document.getElementById('sync-status');
+
+            roomIdInput.value = localStorage.getItem('sw25_room_id') || '';
+            gmModeCheckbox.checked = localStorage.getItem('sw25_gm_mode') === 'true';
+
+            let roundRef = null;
+            let currentFBRound = 1;
+
+            function setupFirebaseSync() {
+                // 古いリスナーがあれば解除
+                if (roundRef) {
+                    roundRef.off();
+                }
+
+                const roomId = roomIdInput.value.trim();
+                if (!roomId) {
+                    syncStatus.textContent = "未接続（ルームIDを入力してください）";
+                    syncStatus.style.color = "#94a3b8";
+                    return;
+                }
+
+                roundRef = db.ref(`rooms/${roomId}/round`);
+                syncStatus.textContent = "接続済み";
+                syncStatus.style.color = "var(--accent)";
+
+                // ラウンド変更のリスナー
+                roundRef.on('value', (snapshot) => {
+                    const newRound = snapshot.val();
+                    if (newRound !== null) {
+                        currentFBRound = newRound;
+                        roundDisplay.textContent = newRound;
+
+                        // DBと同期した場合に、状態も更新する
+                        if (round !== newRound) {
+                            // 新しいラウンドになったときだけバフ等の処理をする場合
+                            round = newRound;
+                            roundDecreaseBtn.disabled = round <= 1;
+                        }
+                    }
+                }, (error) => {
+                    console.error("Firebase sync error:", error);
+                    syncStatus.textContent = "接続エラー";
+                    syncStatus.style.color = "#ef4444";
+                });
+            }
+
+            roomIdInput.addEventListener('change', () => {
+                saveSettings();
+                setupFirebaseSync();
+            });
+            gmModeCheckbox.addEventListener('change', () => {
+                saveSettings();
+                // GMモードになったら、即座に現在のラウンドを送信
+                if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
+                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(round);
+                }
+            });
+
+            // 初期化
+            setupFirebaseSync();
+
             // 設定の保存
             const saveSettings = () => {
                 localStorage.setItem('sw25_pc_name', pcNameInput.value);
                 localStorage.setItem('sw25_webhook_url', webhookUrlInput.value);
                 localStorage.setItem('sw25_webhook_enable', webhookEnableCheckbox.checked);
+                localStorage.setItem('sw25_room_id', roomIdInput.value);
+                localStorage.setItem('sw25_gm_mode', gmModeCheckbox.checked);
             };
 
             pcNameInput.addEventListener('change', saveSettings);
