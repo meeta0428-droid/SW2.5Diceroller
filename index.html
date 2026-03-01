@@ -1699,6 +1699,32 @@
             let roundRef = null;
             let currentFBRound = 1;
 
+            // 設定の保存（setupFirebaseSyncより先に定義する必要がある）
+            const saveSettings = () => {
+                localStorage.setItem('sw25_pc_name', pcNameInput.value);
+                localStorage.setItem('sw25_webhook_url', webhookUrlInput.value);
+                localStorage.setItem('sw25_webhook_enable', webhookEnableCheckbox.checked);
+                localStorage.setItem('sw25_room_id', roomIdInput.value);
+                localStorage.setItem('sw25_gm_mode', gmModeCheckbox.checked);
+            };
+
+            // Firebaseの接続状態をリアルタイムで監視
+            db.ref('.info/connected').on('value', (snap) => {
+                if (snap.val() === true) {
+                    console.log('[Firebase] サーバーに接続しました');
+                    if (roomIdInput.value.trim()) {
+                        syncStatus.textContent = "✅ 接続済み";
+                        syncStatus.style.color = "var(--accent)";
+                    }
+                } else {
+                    console.log('[Firebase] サーバーから切断されました');
+                    if (roomIdInput.value.trim()) {
+                        syncStatus.textContent = "⚠️ 切断中...再接続を試みています";
+                        syncStatus.style.color = "#fbbf24";
+                    }
+                }
+            });
+
             function setupFirebaseSync() {
                 // 古いリスナーがあれば解除
                 if (roundRef) {
@@ -1713,26 +1739,28 @@
                 }
 
                 roundRef = db.ref(`rooms/${roomId}/round`);
-                syncStatus.textContent = "接続済み";
-                syncStatus.style.color = "var(--accent)";
+                syncStatus.textContent = "接続中...";
+                syncStatus.style.color = "#fbbf24";
 
                 // ラウンド変更のリスナー
                 roundRef.on('value', (snapshot) => {
                     const newRound = snapshot.val();
+                    console.log('[Firebase Debug] on value received:', newRound);
+                    syncStatus.textContent = "✅ 接続済み";
+                    syncStatus.style.color = "var(--accent)";
                     if (newRound !== null) {
                         currentFBRound = newRound;
                         roundDisplay.textContent = newRound;
 
                         // DBと同期した場合に、状態も更新する
                         if (roundCount !== newRound) {
-                            // 新しいラウンドになったときだけバフ等の処理をする場合
                             roundCount = newRound;
                             roundDecreaseBtn.disabled = roundCount <= 1;
                         }
                     }
                 }, (error) => {
                     console.error("Firebase sync error:", error);
-                    syncStatus.textContent = "接続エラー";
+                    syncStatus.textContent = "❌ 接続エラー: " + error.message;
                     syncStatus.style.color = "#ef4444";
                 });
             }
@@ -1741,25 +1769,23 @@
                 saveSettings();
                 setupFirebaseSync();
             });
+            // ルームIDを入力中にEnterキーでも接続できるようにする
+            roomIdInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    roomIdInput.blur(); // changeイベントが発火する
+                }
+            });
             gmModeCheckbox.addEventListener('change', () => {
                 saveSettings();
                 // GMモードになったら、即座に現在のラウンドを送信
                 if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
+                    console.log('[Firebase Debug] GMモードON、現在のラウンドを送信:', roundCount);
                     db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
                 }
             });
 
             // 初期化
             setupFirebaseSync();
-
-            // 設定の保存
-            const saveSettings = () => {
-                localStorage.setItem('sw25_pc_name', pcNameInput.value);
-                localStorage.setItem('sw25_webhook_url', webhookUrlInput.value);
-                localStorage.setItem('sw25_webhook_enable', webhookEnableCheckbox.checked);
-                localStorage.setItem('sw25_room_id', roomIdInput.value);
-                localStorage.setItem('sw25_gm_mode', gmModeCheckbox.checked);
-            };
 
             pcNameInput.addEventListener('change', saveSettings);
             webhookUrlInput.addEventListener('change', saveSettings);
@@ -2208,9 +2234,19 @@
                 roundDisplay.textContent = roundCount;
                 roundDecreaseBtn.disabled = roundCount <= 1;
 
+                // デバッグログ
+                console.log('[Firebase Debug] roundIncreaseBtn clicked. roundCount:', roundCount);
+                console.log('[Firebase Debug] gmModeCheckbox:', gmModeCheckbox, 'checked:', gmModeCheckbox ? gmModeCheckbox.checked : 'N/A');
+                console.log('[Firebase Debug] roomIdInput:', roomIdInput, 'value:', roomIdInput ? roomIdInput.value : 'N/A');
+
                 // GMモードが有効ならFirebaseに送信
                 if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
-                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
+                    console.log('[Firebase Debug] ▶ Firebase SET called with roundCount:', roundCount);
+                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount)
+                        .then(() => console.log('[Firebase Debug] ✅ Firebase SET success'))
+                        .catch((err) => console.error('[Firebase Debug] ❌ Firebase SET error:', err));
+                } else {
+                    console.log('[Firebase Debug] ⏭ Firebase SET skipped. GM checked:', gmModeCheckbox.checked, 'roomId:', roomIdInput.value.trim());
                 }
 
                 // バフ・デバフの持続ラウンドを減算処理
