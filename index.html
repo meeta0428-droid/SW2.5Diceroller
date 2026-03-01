@@ -1523,6 +1523,12 @@
         const db = firebase.database();
 
         document.addEventListener('DOMContentLoaded', () => {
+            // --- ラウンド関連変数の宣言（Firebaseとボタンで共有） ---
+            let roundCount = 1;
+            const roundDecreaseBtn = document.getElementById('round-decrease');
+            const roundIncreaseBtn = document.getElementById('round-increase');
+            const roundDisplay = document.getElementById('round-display');
+
             const decreaseBtn = document.getElementById('decrease-btn');
             const increaseBtn = document.getElementById('increase-btn');
             const diceCountDisplay = document.getElementById('dice-count');
@@ -1718,10 +1724,10 @@
                         roundDisplay.textContent = newRound;
 
                         // DBと同期した場合に、状態も更新する
-                        if (round !== newRound) {
+                        if (roundCount !== newRound) {
                             // 新しいラウンドになったときだけバフ等の処理をする場合
-                            round = newRound;
-                            roundDecreaseBtn.disabled = round <= 1;
+                            roundCount = newRound;
+                            roundDecreaseBtn.disabled = roundCount <= 1;
                         }
                     }
                 }, (error) => {
@@ -1739,7 +1745,7 @@
                 saveSettings();
                 // GMモードになったら、即座に現在のラウンドを送信
                 if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
-                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(round);
+                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
                 }
             });
 
@@ -2184,16 +2190,16 @@
                 });
             }
 
-            const roundDecreaseBtn = document.getElementById('round-decrease');
-            const roundIncreaseBtn = document.getElementById('round-increase');
-            const roundDisplay = document.getElementById('round-display');
-            let roundCount = 1;
-
             roundDecreaseBtn.addEventListener('click', () => {
                 if (roundCount > 1) {
                     roundCount--;
                     roundDisplay.textContent = roundCount;
                     roundDecreaseBtn.disabled = roundCount <= 1;
+
+                    // GMモードが有効ならFirebaseに送信
+                    if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
+                        db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
+                    }
                 }
             });
 
@@ -2201,6 +2207,11 @@
                 roundCount++;
                 roundDisplay.textContent = roundCount;
                 roundDecreaseBtn.disabled = roundCount <= 1;
+
+                // GMモードが有効ならFirebaseに送信
+                if (gmModeCheckbox.checked && roomIdInput.value.trim()) {
+                    db.ref(`rooms/${roomIdInput.value.trim()}/round`).set(roundCount);
+                }
 
                 // バフ・デバフの持続ラウンドを減算処理
                 const buffItems = document.querySelectorAll('.buff-item');
