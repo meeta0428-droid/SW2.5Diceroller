@@ -2927,9 +2927,10 @@
                 else if (statName.includes('精神力')) rollTargetType = 'mnd';
                 const totalBuff = calculateTotalBuff(rollTargetType);
 
-                // 器用・敏捷バフも加算
+                // 器用・敏捷バフも加算（一般判定で器用度/敏捷度を使う場合）
                 let statBuff = 0;
-                if (rollTargetType === 'dodge') statBuff = calculateTotalBuff('agi');
+                if (statName.includes('器用')) statBuff = calculateTotalBuff('dex');
+                else if (statName.includes('敏捷') || rollTargetType === 'dodge') statBuff = calculateTotalBuff('agi');
 
                 diceContainer.innerHTML = '';
                 totalScoreDisplay.className = 'total-score';
